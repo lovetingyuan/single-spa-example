@@ -1,5 +1,6 @@
-import * as singleSpa from 'single-spa';
-import manifestMap from './manifest'
+import * as singleSpa from 'single-spa'
+import manifestMap from '../manifest'
+import 'normalize.css'
 
 window.singleApp = {
   loadApp(appName, lifecycles) {
@@ -21,7 +22,7 @@ function loadScript(url, name) {
 }
 
 function loadModule(manifest, name) {
-  const assets = Object.values(manifest.assets).map(v => v[0]);
+  const assets = Object.values(manifest.assets);
   const initialScripts = [];
   Object.values(manifest.entrypoints).forEach(entries => {
     entries.forEach(ep => {

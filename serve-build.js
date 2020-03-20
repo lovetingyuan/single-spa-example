@@ -43,7 +43,7 @@ if (!isBuild) {
       name: 'start:' + name
     }
   }).concat({
-    command: `npx parcel index.html --cache-dir ./node_modules/.cache --no-autoinstall`,
+    command: `npx parcel src/index.html --cache-dir ./node_modules/.cache --no-autoinstall`,
     name: 'start:root'
   }))
 } else {
@@ -63,7 +63,7 @@ if (!isBuild) {
       },
     ]).then(() => concurrently([
       {
-        command: `npx parcel build index.html --cache-dir ./node_modules/.cache`,
+        command: `npx parcel build src/index.html --cache-dir ./node_modules/.cache`,
         name: 'build:root'
       }
     ]))

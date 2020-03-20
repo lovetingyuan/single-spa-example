@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "description": "example of single-spa.",
-  "main": "main.js",
   "scripts": {
     "serve": "node serve-build",
     "build": "node serve-build --build"
@@ -36,6 +35,7 @@
     "rimraf": "^3.0.2"
   },
   "dependencies": {
+    "normalize.css": "^8.0.1",
     "single-spa": "^5.2.0"
   }
 }

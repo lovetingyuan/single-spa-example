@@ -38,7 +38,7 @@ module.exports = class SingleAppPlugin {
       fileName: manifestFilePath,
       generate(seed, files, entrypoints) {
         const assets = files.reduce((manifest, {name, path, isInitial}) => {
-          return {...manifest, [name]: [path, isInitial]}
+          return {...manifest, [name]: path}
         }, seed)
         return {
           assets,
