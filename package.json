@@ -1,0 +1,41 @@
+{
+  "name": "single-spa-example",
+  "version": "1.0.0",
+  "private": true,
+  "description": "example of single-spa.",
+  "main": "main.js",
+  "scripts": {
+    "serve": "node serve-build",
+    "build": "node serve-build --build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lovetingyuan/single-spa-example.git"
+  },
+  "keywords": [
+    "single-spa",
+    "microfrontends",
+    "vue",
+    "react"
+  ],
+  "author": "tingyuan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lovetingyuan/single-spa-example/issues"
+  },
+  "homepage": "https://github.com/lovetingyuan/single-spa-example#readme",
+  "workspaces": [
+    "modules/*"
+  ],
+  "devDependencies": {
+    "@babel/core": "^7.8.7",
+    "concurrently": "^5.1.0",
+    "cross-env": "^7.0.2",
+    "merge-dirs": "^0.2.1",
+    "parcel-bundler": "^1.12.4",
+    "rimraf": "^3.0.2"
+  },
+  "dependencies": {
+    "single-spa": "^5.2.0"
+  }
+}
