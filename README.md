@@ -5,7 +5,7 @@
 3. `yarn build` to build at `dist`
 
 First fill field `singleapp` in the `package.json` following the format:
-```json
+```javascript
 {
   "singleapp": {
     "require": true, // always to be included, default false
