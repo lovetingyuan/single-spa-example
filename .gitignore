@@ -68,3 +68,5 @@ dist
 .fusebox
 
 /manifest
+
+.vscode

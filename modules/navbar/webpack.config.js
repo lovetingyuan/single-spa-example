@@ -2,12 +2,6 @@
 const path = require('path')
 const webpack = require('webpack')
 const SingleAppPlugin = require('../../singleapp-webpack-plugin')
-const isSingleApp = process.env.SINGLE_APP === 'true'
-
-const sap = new SingleAppPlugin({
-  disable: !isSingleApp,
-  package: require('./package.json')
-})
 
 module.exports = {
   mode: process.env.NODE_ENV,
@@ -16,8 +10,7 @@ module.exports = {
     filename: '[name].[hash].js'
   },
   devServer: {
-    port: sap.port,
-    progress: false,
+    port: process.env.SINGLE_APP_PORT,
   },
   module: {
     rules: [
@@ -31,10 +24,12 @@ module.exports = {
     ]
   },
   plugins: [
-    sap,
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
     }),
+    new SingleAppPlugin({
+      package: require('./package.json')
+    })
     // new HtmlWebpackPlugin()
   ]
 }
