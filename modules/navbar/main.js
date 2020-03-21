@@ -26,26 +26,21 @@ ${Object.keys(apps).map(name => {
 let navbarContainer = null
 
 function bootstrap () {
-  navbarContainer = navbarContainer || document.createElement('div')
-  navbarContainer.id = id
+  navbarContainer = document.getElementById(id)
   navbarContainer.innerHTML = template
   return Promise.resolve()
 }
 
 function mount () {
-  if (!document.getElementById(id)) {
-    document.body.appendChild(navbarContainer)
-  }
   return Promise.resolve()
 }
 
 function unmount () {
-  navbarContainer.remove()
-  navbarContainer = null
   return Promise.resolve()
 }
+
 if (typeof singleApp === 'object') {
-  singleApp.loadApp(process.env.SINGLE_APP_NAME, {
+  singleApp.loadApp({
     bootstrap, mount, unmount
   })
 } else {

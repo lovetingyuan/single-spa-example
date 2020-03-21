@@ -19,7 +19,8 @@ module.exports = isSingleApp ? class SingleAppPlugin {
     this.appRoute = singleapp.route || '/'
   }
   apply(compiler) {
-    const devHost = 'http://localhost:' + this.port
+    compiler.options.optimization.splitChunks = false
+    const devHost = 'http://localhost:' + process.env.SINGLE_APP_PORT
 
     const manifestPlugin = new ManifestPlugin({
       writeToFileEmit: true,

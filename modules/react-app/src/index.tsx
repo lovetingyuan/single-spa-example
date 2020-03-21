@@ -7,11 +7,11 @@ import singleSpaReact from 'single-spa-react';
 import * as serviceWorker from './serviceWorker';
 
 if (typeof singleApp === 'object') {
-  singleApp.loadApp(process.env.SINGLE_APP_NAME, singleSpaReact({
+  singleApp.loadApp(singleSpaReact({
     React,
     ReactDOM,
     rootComponent: App as any as React.ComponentClass<any, any>,
-    domElementGetter: () => document.getElementById(process.env.SINGLE_APP_NAME as string) as Element
+    domElementGetter: () => document.getElementById('react-app-container') as Element
   }))
 } else {
   ReactDOM.render(<App />, document.getElementById('root'));

@@ -4,10 +4,17 @@ import 'normalize.css'
 
 window.singleApp = {
   loadApp(appName, lifecycles) {
+    if (!lifecycles) {
+      lifecycles = appName
+      appName = this.appName
+    }
     document.dispatchEvent(new CustomEvent('MODULE_LOADED:' + appName, {
       detail: lifecycles
     }));
   },
+  get appName () {
+    return document.currentScript.dataset.singleapp
+  }
 };
 
 function loadScript(url, name) {

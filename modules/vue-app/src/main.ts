@@ -12,8 +12,8 @@ const appOptions: ComponentOptions<Vue> = {
 }
 
 if (typeof singleApp === 'object') {
-  appOptions.el = document.getElementById(process.env.SINGLE_APP_NAME) as Element
-  singleApp.loadApp(process.env.SINGLE_APP_NAME, singleSpaVue({
+  appOptions.el = document.getElementById('vue-app-container') as Element
+  singleApp.loadApp(singleSpaVue({
     Vue,
     appOptions
   }))

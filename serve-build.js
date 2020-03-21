@@ -1,51 +1,54 @@
 const fs = require('fs')
-const targetApps = process.argv.slice(2)
-const isBuild = targetApps[0] === '--build'
+const path = require('path')
+const crypto = require('crypto')
 const concurrently = require('concurrently')
+const got = require('got')
+// const { createProxyMiddleware } = require('http-proxy-middleware');
 
-if (isBuild) {
-  targetApps.shift()
-}
+const targetAppDirs = process.argv.slice(2)
+const allAppDirs = fs.readdirSync('./modules')
+const isBuild = targetAppDirs[0] === '--build'
+isBuild && targetAppDirs.shift()
+fs.existsSync('./manifest') || fs.mkdirSync('./manifest')
 
-const allApps = fs.readdirSync('./modules')
+targetAppDirs.push(...(targetAppDirs.length ? allAppDirs.filter(name => {
+  const { singleapp } = require('./modules/' + name + '/package.json')
+  return singleapp.required && !targetAppDirs.includes(name)
+}) : allAppDirs))
 
-if (!targetApps.length) {
-  targetApps.push(...allApps)
-} else {
-  allApps.forEach(name => {
-    const { singleapp } = require('./modules/' + name + '/package.json')
-    if (singleapp.required && !targetApps.includes(name)) {
-      targetApps.push(name)
-    }
-  })
-}
-
-const appNames = targetApps.map(name => {
-  const { singleapp, name: pkgName } = require('./modules/' + name + '/package.json')
-  const appName = (singleapp.name || pkgName).replace(/ /g, '-')
-  if (!fs.existsSync('./manifest')) {
-    fs.mkdirSync('./manifest')
+const targetApps = targetAppDirs.reduce((ret, dir, index) => {
+  const { singleapp, name } = require('./modules/' + dir + '/package.json')
+  const appName = singleapp.name || name
+  let port = +singleapp.port || parseInt(
+    crypto.createHash('md5').update(appName).digest('hex').substr(0, 10), 16
+  ) % 10000
+  port = port * (10 ** (4 - String(port).length))
+  ret[appName] = {
+    port, dir
   }
   fs.writeFileSync('./manifest/' + appName + '.json', '{}')
-  return appName
-})
-
-fs.writeFileSync('./manifest/index.js', `
-module.exports = {
-  ${appNames.map(name => `${JSON.stringify(name)}: require('./${name}.json')`).join(', ')}
-}
-`)
+  if (index === targetAppDirs.length - 1) {
+    fs.writeFileSync('./manifest/index.js', `
+    module.exports = {
+      ${Object.keys(ret).map(name => {
+      return `${JSON.stringify(name)}: require('./${name}.json')`
+    }).join(', ')}
+    }`)
+  }
+  return ret
+}, {})
 
 if (!isBuild) {
-  concurrently(targetApps.map(name => {
+  const startCmds = Object.entries(targetApps).map(([appName, { dir, port }]) => {
     return {
-      command: `cd modules/${name} && npx cross-env SINGLE_APP=true npm run serve`,
-      name: 'start:' + name
+      command: `cd modules/${dir} && npx cross-env SINGLE_APP=true SINGLE_APP_PORT=${port} npm run serve`,
+      name: 'start:' + appName
     }
   }).concat({
     command: `npx parcel src/index.html --cache-dir ./node_modules/.cache --no-autoinstall`,
     name: 'start:root'
-  }))
+  })
+  concurrently(startCmds)
 } else {
   const buildCmds = targetApps.map(name => {
     return {
