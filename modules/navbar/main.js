@@ -1,7 +1,3 @@
-if (process.env.NODE_ENV === 'development' && typeof singleApp === 'object') {
-  __webpack_public_path__ = process.env.SINGLE_APP_DEV_ORIGIN + '/' // eslint-disable-line
-}
-
 const apps = {
   'vue-app': '/vue-singleapp',
   'react-app': '/react-singleapp',
@@ -47,4 +43,10 @@ if (typeof singleApp === 'object') {
   bootstrap().then(() => {
     return mount()
   })
+  window.parent.postMessage({
+    type: 'singleapp',
+    origin: window.location.origin,
+    js: [...window.document.querySelectorAll('script[src]')].map((v) => v.src),
+    css: [...window.document.querySelectorAll('link[rel="stylesheet"]')].map((v) => v.href).filter(Boolean)
+  }, 'http://localhost:1234')
 }

@@ -1,4 +1,3 @@
-import './pp'
 import Vue, { ComponentOptions } from 'vue'
 import App from './App.vue'
 import router from './router'
@@ -19,4 +18,12 @@ if (typeof singleApp === 'object') {
   }))
 } else {
   new Vue(appOptions).$mount('#app')
+  if (location.search.startsWith('?singleapp=')) {
+    window.parent.postMessage({
+      type: 'singleapp',
+      origin: location.origin,
+      js: [...document.scripts].map(v => v.src).filter(Boolean),
+      css: [...document.querySelectorAll('link[rel="stylesheet"]')].map((v: any) => v.href).filter(Boolean)
+    }, 'http://localhost:1234')
+  }
 }

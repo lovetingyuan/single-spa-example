@@ -3,7 +3,7 @@ import manifestMap from '../manifest'
 import 'normalize.css'
 
 window.singleApp = {
-  loadApp(appName, lifecycles) {
+  loadApp (appName, lifecycles) {
     if (!lifecycles) {
       lifecycles = appName
       appName = this.appName
@@ -58,7 +58,7 @@ function loadModule(manifest, name) {
   }
   const lifecycles = new Promise(resolve => {
     document.addEventListener('MODULE_LOADED:' + name, (evt) => {
-      resolve(typeof evt.detail === 'function' ? evt.detail() : evt.detail);
+      resolve(typeof evt.detail === 'function' ? evt.detail(name) : evt.detail);
     });
   })
   return initialScripts.reduce(
@@ -80,3 +80,20 @@ Object.entries(manifestMap).forEach(([name, manifest]) => {
 });
 
 singleSpa.start();
+
+if (module.hot) {
+  module.hot.accept()
+}
+
+function loadIframe (src) {
+  const iframe = document.createElement('iframe')
+  iframe.src = src + '?singleapp=true'
+  iframe.hidden = true
+  document.body.appendChild(iframe)
+}
+
+window.addEventListener('message', evt => {
+  if (evt.data && evt.data.type === 'singleapp') {
+    console.log(evt.data)
+  }
+})

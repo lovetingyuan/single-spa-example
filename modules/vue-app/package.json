@@ -64,6 +64,7 @@
     ]
   },
   "singleapp": {
+    "name": "my vue app",
     "route": "/vue-singleapp"
   }
 }
