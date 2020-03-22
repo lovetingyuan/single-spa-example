@@ -19,7 +19,7 @@ import {
 // const history = createBrowserHistory({ basename: '/your-base-name' });
 
 function BasicExample() {
-  const basename = process.env.SINGLE_APP ? process.env.SINGLE_APP_ROUTE : process.env.PUBLIC_URL
+  const basename = window.location.pathname
   return (
     <Router basename={basename}>
       <div>

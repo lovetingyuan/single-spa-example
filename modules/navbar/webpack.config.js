@@ -1,16 +1,25 @@
 // /* eslint-disable */
 const path = require('path')
-const webpack = require('webpack')
-const SingleAppPlugin = require('../../singleapp-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+
+let publicPath = '/'
+
+if (process.env.SINGLE_APP === 'development') {
+  publicPath = 'http://localhost:' + process.env.SINGLE_APP_DEV_PORT + '/'
+}
 
 module.exports = {
   mode: process.env.NODE_ENV,
   entry: path.join(__dirname, 'main.js'),
   output: {
+    publicPath,
     filename: '[name].[hash].js'
   },
   devServer: {
-    port: process.env.SINGLE_APP_PORT,
+    port: process.env.SINGLE_APP_DEV_PORT || 8080,
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    }
   },
   module: {
     rules: [
@@ -24,12 +33,6 @@ module.exports = {
     ]
   },
   plugins: [
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-    }),
-    new SingleAppPlugin({
-      package: require('./package.json')
-    })
-    // new HtmlWebpackPlugin()
+    new HtmlWebpackPlugin()
   ]
 }

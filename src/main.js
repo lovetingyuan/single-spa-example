@@ -1,8 +1,8 @@
 import * as singleSpa from 'single-spa'
-import manifestMap from '../manifest'
+import manifestList from '../manifest'
 import 'normalize.css'
 
-window.singleApp = {
+window.singleApp = window.singleApp || {
   loadApp (appName, lifecycles) {
     if (!lifecycles) {
       lifecycles = appName
@@ -10,90 +10,72 @@ window.singleApp = {
     }
     document.dispatchEvent(new CustomEvent('MODULE_LOADED:' + appName, {
       detail: lifecycles
-    }));
+    }))
   },
   get appName () {
     return document.currentScript.dataset.singleapp
   }
-};
-
-function loadScript(url, name) {
-  const script = document.createElement('script');
-  script.src = url + '?singleapp=' + name;
-  script.dataset.singleapp = name;
-  document.body.appendChild(script);
-  return new Promise((resolve, reject) => {
-    script.onerror = reject;
-    script.onload = resolve;
-  });
 }
 
-function loadModule(manifest, name) {
-  const assets = Object.values(manifest.assets);
-  const initialScripts = [];
-  Object.values(manifest.entrypoints).forEach(entries => {
-    entries.forEach(ep => {
-      let url = assets.find(v => v.endsWith(ep));
-      if (process.env.NODE_ENV !== 'production' && url && !url.startsWith('http')) {
-        url = manifest.devHost + (url[0] !== '/' ? '/' + url : url);
-      }
-      if (ep.endsWith('.css')) { // if asset is css, just load it directly
-        const link = document.createElement('link');
-        link.setAttribute('rel', 'stylesheet');
-        link.href = url + '?singleapp=' + name;
-        link.dataset.singleapp = name;
-        document.head.appendChild(link);
-      } else if (ep.endsWith('.js') && !ep.endsWith('.hot-update.js')) {
-        if (!url) {
-          throw new Error(`script: ${url} is missing at app: ${name}.`)
-        } else {
-          initialScripts.push(url);
-        }
-      }
-    });
-  });
-
-  if (!initialScripts.filter(Boolean).length) {
-    throw new Error(`Not found initial module script of ${name}.`);
+function getFullUrl (path, origin, name) {
+  if (path.startsWith('http')) return path
+  if (path[0] === '/') {
+    path = path.substr(1)
   }
+  if (!origin.endsWith('/')) {
+    origin = origin + '/'
+  }
+  return origin + path + (name ? '?singleapp=' + name : '')
+}
+
+function loadModule (startUrl, name) {
   const lifecycles = new Promise(resolve => {
     document.addEventListener('MODULE_LOADED:' + name, (evt) => {
-      resolve(typeof evt.detail === 'function' ? evt.detail(name) : evt.detail);
-    });
+      resolve(typeof evt.detail === 'function' ? evt.detail(name) : evt.detail)
+    })
   })
-  return initialScripts.reduce(
-    (p, url) => p.then(() => loadScript(url, name)),
-    Promise.resolve()
-  ).then(() => lifecycles);
+  if (process.env.NODE_ENV === 'development') {
+    return fetch(startUrl).then(res => res.text()).then(html => {
+      const domparser = new DOMParser()
+      const doc = domparser.parseFromString(html, 'text/html')
+      const scripts = [...doc.querySelectorAll('script[src]')].map(v => v.getAttribute('src'))
+      doc.querySelectorAll('link[rel="stylesheet"]').forEach(v => {
+        const link = document.createElement('link')
+        link.setAttribute('rel', 'stylesheet')
+        link.href = getFullUrl(v.getAttribute('href'), startUrl, name)
+        link.dataset.singleapp = name
+        document.head.appendChild(link)
+      })
+      return scripts.reduce(
+        (p, url) => p.then(() => {
+          const script = document.createElement('script')
+          script.src = getFullUrl(url, startUrl, name)
+          script.dataset.singleapp = name
+          document.body.appendChild(script)
+          return new Promise((resolve, reject) => {
+            script.onerror = reject
+            script.onload = resolve
+          })
+        }),
+        Promise.resolve()
+      ).then(() => lifecycles)
+    })
+  }
 }
 
-Object.entries(manifestMap).forEach(([name, manifest]) => {
-  const path = manifest.route;
+manifestList.forEach(({ name, startUrl, mountPath }) => {
   const apps = singleSpa.getAppNames();
   if (!apps.includes(name)) {
     singleSpa.registerApplication(
       name,
-      () => loadModule(manifest, name),
-      location => typeof path === 'string' ? location.pathname.startsWith(path) : (path === false ? false : true)
-    );
+      () => loadModule(startUrl, name),
+      location => location.pathname.startsWith(mountPath)
+    )
   }
-});
+})
 
-singleSpa.start();
+singleSpa.start()
 
 if (module.hot) {
   module.hot.accept()
 }
-
-function loadIframe (src) {
-  const iframe = document.createElement('iframe')
-  iframe.src = src + '?singleapp=true'
-  iframe.hidden = true
-  document.body.appendChild(iframe)
-}
-
-window.addEventListener('message', evt => {
-  if (evt.data && evt.data.type === 'singleapp') {
-    console.log(evt.data)
-  }
-})

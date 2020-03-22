@@ -6,7 +6,7 @@ Vue.use(VueRouter);
 
 const router = new VueRouter({
   mode: "history",
-  base: process.env.SINGLE_APP ? process.env.SINGLE_APP_ROUTE : process.env.BASE_URL,
+  base: location.pathname,
   routes: [
     {
       path: "/",

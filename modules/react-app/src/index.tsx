@@ -14,14 +14,6 @@ if (typeof singleApp === 'object') {
   }))
 } else {
   ReactDOM.render(<App />, document.getElementById('root'));
-  if (window.location.search.startsWith('?singleapp=')) {
-    window.parent.postMessage({
-      type: 'singleapp',
-      origin: window.location.origin,
-      js: [...window.document.querySelectorAll('script[src]')].map((v: any) => v.src),
-      css: [...window.document.querySelectorAll('link[rel="stylesheet"]')].map((v: any) => v.href).filter(Boolean)
-    }, 'http://localhost:1234')
-  }
 }
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

@@ -46,7 +46,7 @@
     "webpack-manifest-plugin": "^2.2.0"
   },
   "singleapp": {
-    "route": "/react-singleapp",
+    "mountPath": "/react-singleapp",
     "output": "build"
   }
 }

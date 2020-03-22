@@ -6,7 +6,6 @@ const apps = {
 const id = 'navbar-container'
 
 const template = `
-<h2 style="text-align: center"> Single App Example </h2>
 <nav style="text-align: center; text-transform: capitalize;">
 ${Object.keys(apps).map(name => {
   return `<a href="${apps[name]}" onclick="singleSpaNavigate(event)">${name}</a>`
@@ -43,10 +42,4 @@ if (typeof singleApp === 'object') {
   bootstrap().then(() => {
     return mount()
   })
-  window.parent.postMessage({
-    type: 'singleapp',
-    origin: window.location.origin,
-    js: [...window.document.querySelectorAll('script[src]')].map((v) => v.src),
-    css: [...window.document.querySelectorAll('link[rel="stylesheet"]')].map((v) => v.href).filter(Boolean)
-  }, 'http://localhost:1234')
 }

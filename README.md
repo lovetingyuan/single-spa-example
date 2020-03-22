@@ -10,18 +10,18 @@ Micro app set up process:
 ```javascript
 {
   "singleapp": {
-    "require": true, // always to be included, default false
-    "route": "/app-name", // pathname starts with this will be loaded, default "/"
+    "name": "app name", // micro app name, must be unique, default is "name" of package.json
+    "mountPath": "/app-name", // pathname starts with this will be loaded, default "/"
     "output": "dist", // static assets ouput dir, default "dist"
-    "port": 8080 // dev server port, just for development and no need to set this in general
+    "publicPath": "/", // if your app runs at a specific path, please set up this, default is "/"
   }
 }
 ```
-2. add `singleapp-webpack-plugin` to webpack config and set dev port
-3. [set webpack public path on the fly](https://webpack.js.org/guides/public-path/#on-the-fly) at the beginning of you app code
-```javascript
-if (process.env.NODE_ENV === 'development' && typeof singleApp === 'object') {
-  __webpack_public_path__ = process.env.SINGLE_APP_DEV_ORIGIN + '/' // eslint-disable-line
-}
-```
+
+2. You have to ensure that assets url in your app must be complete http url
+
+For `webpack`, you could set `output.publicPath` to `'http://localhost:' + process.env.SINGLE_APP_DEV_PORT + '/'`
+
+3. use `process.env.SINGLE_APP_DEV_PORT` as your dev server port and enable `CORS`.
+
 4. Make sure the app use npm script `npm run serve` to start development and `npm run build` to production build.

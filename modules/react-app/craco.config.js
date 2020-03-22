@@ -1,20 +1,23 @@
-const SingleAppPlugin = require('../../singleapp-webpack-plugin')
-const isSingleApp = process.env.SINGLE_APP === 'true'
+const { singleapp } = require('./package.json')
 
-if (isSingleApp) {
+if (process.env.SINGLE_APP === 'development') {
   process.env.BROWSER = 'none' // do not open browser
-  process.env.WDS_SOCKET_PORT = process.env.SINGLE_APP_PORT
+  const port = process.env.SINGLE_APP_DEV_PORT
+  process.env.PORT = port
+  process.env.WDS_SOCKET_PORT = port
+  process.env.PUBLIC_URL = 'http://localhost:' + port + '/'
+}
+
+if (process.env.SINGLE_APP) {
+  process.env.REACT_APP_SINGLE_APP_MOUNT_PATH = singleapp.mountPath
 }
 
 module.exports = {
   devServer: {
-    port: process.env.SINGLE_APP_PORT
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    }
   },
   webpack: {
-    plugins: [
-      new SingleAppPlugin({
-        package: require('./package.json')
-      })
-    ]
   }
 }
