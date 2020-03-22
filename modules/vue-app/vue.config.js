@@ -15,6 +15,9 @@ module.exports = {
   publicPath,
   devServer: {
     port: process.env.SINGLE_APP_DEV_PORT || 8080,
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    }
   },
   configureWebpack: {
   },
