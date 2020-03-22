@@ -6,11 +6,11 @@ Vue.use(VueRouter);
 
 const router = new VueRouter({
   mode: "history",
-  base: location.pathname,
+  base: process.env.VUE_APP_SINGLE_APP_MOUNT_PATH || process.env.BASE_URL,
   routes: [
     {
-      path: "/",
-      name: "Home",
+      path: '/',
+      name: 'Home',
       component: Home
     },
     {

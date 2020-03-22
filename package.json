@@ -4,8 +4,8 @@
   "private": true,
   "description": "example of single-spa.",
   "scripts": {
-    "serve": "node serve-build",
-    "build": "node serve-build --build"
+    "serve": "npx cross-env NODE_ENV=development node serve-build",
+    "build": "npx cross-env NODE_ENV=production node serve-build"
   },
   "repository": {
     "type": "git",
@@ -30,12 +30,13 @@
     "@babel/core": "^7.8.7",
     "concurrently": "^5.1.0",
     "cross-env": "^7.0.2",
+    "jsdom": "^16.2.1",
     "merge-dirs": "^0.2.1",
     "parcel-bundler": "^1.12.4",
     "rimraf": "^3.0.2"
   },
   "dependencies": {
     "normalize.css": "^8.0.1",
-    "single-spa": "^5.2.0"
+    "single-spa": "^5.2.1"
   }
 }

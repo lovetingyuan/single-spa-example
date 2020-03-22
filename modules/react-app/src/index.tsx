@@ -6,7 +6,7 @@ import singleSpaReact from 'single-spa-react';
 import * as serviceWorker from './serviceWorker';
 
 if (typeof singleApp === 'object') {
-  singleApp.loadApp(singleSpaReact({
+  singleApp.startApp(singleSpaReact({
     React,
     ReactDOM,
     rootComponent: App as any as React.ComponentClass<any, any>,

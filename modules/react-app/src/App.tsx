@@ -19,7 +19,7 @@ import {
 // const history = createBrowserHistory({ basename: '/your-base-name' });
 
 function BasicExample() {
-  const basename = window.location.pathname
+  const basename = process.env.REACT_APP_SINGLE_APP_MOUNT_PATH || process.env.PUBLIC_URL
   return (
     <Router basename={basename}>
       <div>

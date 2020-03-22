@@ -14,9 +14,6 @@ if (process.env.SINGLE_APP) {
 
 module.exports = {
   devServer: {
-    headers: {
-      'Access-Control-Allow-Origin': '*'
-    }
   },
   webpack: {
   }
