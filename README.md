@@ -2,7 +2,6 @@
 
 1. `yarn install`
 2. `yarn serve` to start development at `http://localhost:1234`
-3. `yarn build` to build at `dist`
 
 Micro app set up process: 
 
@@ -18,10 +17,8 @@ Micro app set up process:
 }
 ```
 
-2. You have to ensure that assets url in your app must be complete http url
+2. You have to ensure that assets url in your app must be complete http url. For `webpack`, you could set `output.publicPath` to `'http://localhost:' + process.env.SINGLE_APP_DEV_PORT + '/'`.
 
-For `webpack`, you could set `output.publicPath` to `'http://localhost:' + process.env.SINGLE_APP_DEV_PORT + '/'`
-
-3. use `process.env.SINGLE_APP_DEV_PORT` as your dev server port and enable `CORS`.
+3. use `process.env.SINGLE_APP_DEV_PORT` as your dev server port.
 
 4. Make sure the app use npm script `npm run serve` to start development and `npm run build` to production build.
