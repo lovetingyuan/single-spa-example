@@ -1,13 +1,7 @@
-/* eslint-disable */
-const { singleapp } = require('./package.json')
 let publicPath = '/'
 
 if (process.env.SINGLE_APP === 'development') {
   publicPath = 'http://localhost:' + process.env.SINGLE_APP_DEV_PORT + '/'
-}
-
-if (process.env.SINGLE_APP) {
-  process.env.VUE_APP_SINGLE_APP_MOUNT_PATH = singleapp.mountPath
 }
 
 module.exports = {
@@ -19,6 +13,5 @@ module.exports = {
       'Access-Control-Allow-Origin': '*'
     }
   },
-  configureWebpack: {
-  },
+  configureWebpack: {}
 }

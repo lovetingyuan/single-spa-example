@@ -1,12 +1,13 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import Home from "../views/Home.vue";
+import { singleapp } from '../../package.json'
 
 Vue.use(VueRouter);
 
 const router = new VueRouter({
   mode: "history",
-  base: window.singleApp ? window.singleApp.appMountPath : process.env.BASE_URL,
+  base: window.singleApp ? singleapp.mountPath : process.env.BASE_URL,
   routes: [
     {
       path: '/',

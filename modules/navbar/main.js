@@ -1,3 +1,5 @@
+import { singleapp, name } from './package.json'
+
 const apps = {
   'vue-app': '/vue-singleapp',
   'react-app': '/react-singleapp',
@@ -29,7 +31,7 @@ function unmount () {
 }
 
 if (typeof singleApp === 'object') {
-  singleApp.startApp({
+  singleApp.startApp(singleapp.name || name, {
     bootstrap, mount, unmount
   })
 } else {

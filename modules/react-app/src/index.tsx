@@ -4,11 +4,10 @@ import './index.css';
 import App from './App';
 import singleSpaReact from 'single-spa-react';
 import * as serviceWorker from './serviceWorker';
+import { name } from '../package.json'
 
-if (typeof singleApp === 'object') {
-  const mountPath = singleApp.appMountPath
-  console.log(mountPath)
-  singleApp.startApp(singleSpaReact({
+if (window.singleApp) {
+  singleApp.startApp(name, singleSpaReact({
     React,
     ReactDOM,
     rootComponent: App as any as React.ComponentClass<any, any>,

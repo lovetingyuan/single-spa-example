@@ -3,20 +3,13 @@ import 'normalize.css'
 
 window.singleApp = window.singleApp || {
   startApp (appName, lifecycles) {
-    if (!lifecycles) {
-      lifecycles = appName
-      appName = this.appName
-    }
     document.dispatchEvent(new CustomEvent('MODULE_LOADED:' + appName, {
       detail: lifecycles
     }))
   },
-  get appName () {
-    return document.currentScript.dataset.singleappName
-  },
-  get appMountPath () {
-    return document.currentScript.dataset.singleappPath
-  }
+  // get appName () {
+  //   return document.currentScript.dataset.singleappName
+  // },
 }
 
 function loadApp (assets, name, mountPath) {

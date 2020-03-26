@@ -2,6 +2,7 @@ import Vue, { ComponentOptions } from 'vue'
 import App from './App.vue'
 import router from './router'
 import singleSpaVue from 'single-spa-vue'
+import { singleapp, name } from '../package.json'
 
 Vue.config.productionTip = false
 
@@ -10,9 +11,9 @@ const appOptions: ComponentOptions<Vue> = {
   router,
 }
 
-if (typeof singleApp === 'object') {
+if (window.singleApp) {
   appOptions.el = document.getElementById('vue-app-container') as Element
-  singleApp.startApp(singleSpaVue({
+  singleApp.startApp(singleapp.name || name, singleSpaVue({
     Vue,
     appOptions
   }))
