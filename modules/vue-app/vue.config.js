@@ -13,5 +13,9 @@ module.exports = {
       'Access-Control-Allow-Origin': '*'
     }
   },
-  configureWebpack: {}
+  configureWebpack: {
+    output: {
+      jsonpFunction: `webpackJsonp_vueapp`
+    }
+  }
 }

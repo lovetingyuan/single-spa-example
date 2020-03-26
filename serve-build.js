@@ -25,11 +25,17 @@ const generateManifest = function (urlOrFile, singleApp) {
   const resolveUrl = url => {
     if (!isurl || isURL(url)) return url
     const { origin, pathname } = new URL(urlOrFile)
-    if (url[0] === '/') {
+    if (url.startsWith('..')) {
+      throw new Error('above relative url is not supported, ' + url)
+    }
+    if (url.startsWith('/')) {
       url = origin + url
     } else {
       if (!pathname.endsWith('/')) {
         pathname = pathname + '/'
+      }
+      if (url.startsWith('./')) {
+        url = url.substr(2)
       }
       url = origin + pathname + url
     }

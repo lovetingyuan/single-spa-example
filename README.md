@@ -17,8 +17,10 @@ Micro app set up process:
 }
 ```
 
-2. You have to ensure that assets url in your app must be complete http url. For `webpack`, you could set `output.publicPath` to `'http://localhost:' + process.env.SINGLE_APP_DEV_PORT + '/'`.
+2. You have to ensure that assets url in your app must be complete http url. For `webpack`, you could set `output.publicPath`.
 
 3. use `process.env.SINGLE_APP_DEV_PORT` as your dev server port.
 
-4. Make sure the app use npm script `npm run serve` to start development and `npm run build` to production build.
+4. use `"mountPath"` as your app router base path.
+
+5. Make sure the app use npm script `npm run serve` to start development and `npm run build` to production build.
