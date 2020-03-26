@@ -13,8 +13,4 @@ if (process.env.SINGLE_APP) {
 }
 
 module.exports = {
-  devServer: {
-  },
-  webpack: {
-  }
 }

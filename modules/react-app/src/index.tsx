@@ -6,6 +6,8 @@ import singleSpaReact from 'single-spa-react';
 import * as serviceWorker from './serviceWorker';
 
 if (typeof singleApp === 'object') {
+  const mountPath = singleApp.appMountPath
+  console.log(mountPath)
   singleApp.startApp(singleSpaReact({
     React,
     ReactDOM,

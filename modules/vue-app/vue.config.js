@@ -1,9 +1,9 @@
 /* eslint-disable */
 const { singleapp } = require('./package.json')
-let publicPath = singleapp.publicPath
+let publicPath = '/'
 
 if (process.env.SINGLE_APP === 'development') {
-  publicPath = 'http://localhost:' + process.env.SINGLE_APP_DEV_PORT + publicPath
+  publicPath = 'http://localhost:' + process.env.SINGLE_APP_DEV_PORT + '/'
 }
 
 if (process.env.SINGLE_APP) {

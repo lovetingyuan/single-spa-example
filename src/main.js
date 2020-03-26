@@ -12,33 +12,58 @@ window.singleApp = window.singleApp || {
     }))
   },
   get appName () {
-    return document.currentScript.dataset.singleapp
+    return document.currentScript.dataset.singleappName
+  },
+  get appMountPath () {
+    return document.currentScript.dataset.singleappPath
   }
 }
 
-function loadApp ({ js, css }, name) {
+function loadApp (assets, name, mountPath) {
   const lifecycles = new Promise(resolve => {
     document.addEventListener('MODULE_LOADED:' + name, (evt) => {
       resolve(typeof evt.detail === 'function' ? evt.detail(name) : evt.detail)
     })
   })
-  css.forEach(href => {
-    const link = document.createElement('link')
-    link.setAttribute('rel', 'stylesheet')
-    link.href = href + '?singleapp=' + name
-    link.dataset.singleapp = name
-    document.head.appendChild(link)
-  })
-  return js.reduce(
-    (p, src) => p.then(() => {
-      const script = document.createElement('script')
-      script.src = src + '?singleapp' + name
-      script.dataset.singleapp = name
-      document.body.appendChild(script)
-      return new Promise((resolve, reject) => {
-        script.onerror = reject
-        script.onload = resolve
-      })
+  return assets.reduce(
+    (p, asset) => p.then(() => {
+      const dom = document.createElement(asset.tag)
+      dom.dataset.singleappName = name
+      dom.dataset.singleappPath = mountPath
+      let promise
+      switch (asset.tag) {
+        case 'link': {
+          dom.setAttribute('rel', 'stylesheet')
+          dom.setAttribute('href', asset.url)
+          document.head.appendChild(dom)
+          break
+        }
+        case 'style': {
+          dom.innerText = asset.source
+          document.head.appendChild(dom)
+          break
+        }
+        case 'script': {
+          if (asset.type !== 'inline') {
+            typeof asset.type === 'string' && dom.setAttribute('type', asset.type)
+            typeof asset.async === 'string' && dom.setAttribute('async', asset.async)
+            typeof asset.defer === 'string' && dom.setAttribute('defer', asset.defer)
+            dom.setAttribute('src', asset.url)
+            promise = new Promise((resolve, reject) => {
+              dom.onerror = reject
+              dom.onload = resolve
+            })
+          } else {
+            dom.innerText = asset.source
+          }
+          document.body.appendChild(dom)
+          break
+        }
+        default: {
+          throw new Error(`not support asset type: ${asset.tag}`)
+        }
+      }
+      return promise
     }),
     Promise.resolve()
   ).then(() => lifecycles)
@@ -50,7 +75,7 @@ function startSingleApp (manifestList) {
     if (!apps.includes(name)) {
       singleSpa.registerApplication(
         name,
-        () => loadApp(assets, name),
+        () => loadApp(assets, name, mountPath),
         location => location.pathname.startsWith(mountPath)
       )
     }

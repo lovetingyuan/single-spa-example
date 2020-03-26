@@ -65,7 +65,6 @@
   },
   "singleapp": {
     "name": "my vue app",
-    "mountPath": "/vue-singleapp",
-    "publicPath": "/vue-app-path/"
+    "mountPath": "/vue-singleapp"
   }
 }
