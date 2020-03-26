@@ -1,16 +1,12 @@
 import { singleapp, name } from './package.json'
 
-const apps = {
-  'vue-app': '/vue-singleapp',
-  'react-app': '/react-singleapp',
-}
-
 const id = 'navbar-container'
 
 const template = `
 <nav style="text-align: center; text-transform: capitalize;">
 <a href="/vue-singleapp" onclick="singleSpaNavigate(event)">vue-app</a> | 
-<a href="/react-singleapp/" onclick="singleSpaNavigate(event)">react-app</a>
+<a href="/react-singleapp/" onclick="singleSpaNavigate(event)">react-app</a> |
+<a href="/ng-singleapp/" onclick="singleSpaNavigate(event)">angular-app</a>
 </nav>
 `
 

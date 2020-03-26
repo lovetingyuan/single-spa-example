@@ -1,5 +1,6 @@
 const fs = require('fs')
 const path = require('path')
+const Url = require('url')
 const concurrently = require('concurrently')
 const { JSDOM } = require('jsdom')
 
@@ -24,22 +25,7 @@ const generateManifest = function (urlOrFile, singleApp) {
   const isurl = isURL(urlOrFile)
   const resolveUrl = url => {
     if (!isurl || isURL(url)) return url
-    const { origin, pathname } = new URL(urlOrFile)
-    if (url.startsWith('..')) {
-      throw new Error('above relative url is not supported, ' + url)
-    }
-    if (url.startsWith('/')) {
-      url = origin + url
-    } else {
-      if (!pathname.endsWith('/')) {
-        pathname = pathname + '/'
-      }
-      if (url.startsWith('./')) {
-        url = url.substr(2)
-      }
-      url = origin + pathname + url
-    }
-    return url
+    return Url.resolve(urlOrFile, url)
   }
   return JSDOM[isurl ? 'fromURL' : 'fromFile'](urlOrFile, {
     // resources
@@ -66,9 +52,10 @@ const generateManifest = function (urlOrFile, singleApp) {
       }
       if (tag.tagName === 'SCRIPT') {
         const type = tag.getAttribute('type')
-        if (type && !['text/javascript', 'text/ecmascript', 'application/javascript', 'application/ecmascript'].includes(type)) return
+        if (type && !['text/javascript', 'text/ecmascript', 'application/javascript', 'application/ecmascript', 'module'].includes(type)) return
         const async = tag.getAttribute('async')
         const defer = tag.getAttribute('defer')
+        const nomodule = tag.getAttribute('nomodule')
         const src = tag.getAttribute('src')
         if (src) {
           if (src.endsWith('.hot-update.js')) return
@@ -76,7 +63,7 @@ const generateManifest = function (urlOrFile, singleApp) {
             tag: 'script',
             type,
             url: resolveUrl(src),
-            async, defer
+            async, defer, nomodule
           }
         } else {
           const content = tag.innerHTML.trim()
@@ -104,8 +91,9 @@ const generateManifest = function (urlOrFile, singleApp) {
 
 const targetApps = targetAppDirs.concat(
   allAppDirs.filter(dir => {
-    if (!targetAppDirs.length) return true
     const { singleapp } = require('./modules/' + dir + '/package.json')
+    if (!singleapp || singleapp.disabled) return false
+    if (!targetAppDirs.length) return true
     return (singleapp.mountPath === '/') && !targetAppDirs.includes(dir)
   })
 ).map(dir => {
@@ -164,6 +152,10 @@ function serve () {
   })
 
   app.use(bundler.middleware())
+  app.use('*', (req, res, next) => {
+    console.log(req.url)
+    res.sendStatus(404)
+  })
   const server = app.listen(1234)
   Array('SIGINT', 'SIGTERM', 'SIGHUP').forEach(sig => {
     process.on(sig, () => {

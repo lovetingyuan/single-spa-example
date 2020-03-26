@@ -41,6 +41,7 @@ function loadApp (assets, name, mountPath) {
             typeof asset.type === 'string' && dom.setAttribute('type', asset.type)
             typeof asset.async === 'string' && dom.setAttribute('async', asset.async)
             typeof asset.defer === 'string' && dom.setAttribute('defer', asset.defer)
+            typeof asset.nomodule === 'string' && dom.setAttribute('nomodule', '')
             dom.setAttribute('src', asset.url)
             promise = new Promise((resolve, reject) => {
               dom.onerror = reject
