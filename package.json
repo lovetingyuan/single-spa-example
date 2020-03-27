@@ -5,7 +5,8 @@
   "description": "example of single-spa.",
   "scripts": {
     "serve": "npx cross-env NODE_ENV=development node serve-build",
-    "build": "npx cross-env NODE_ENV=production node serve-build"
+    "build": "npx cross-env NODE_ENV=production node serve-build",
+    "build:root": "npx parcel build src/index.html --cache-dir ./node_modules/.cache --no-minify"
   },
   "repository": {
     "type": "git",

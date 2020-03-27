@@ -4,8 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "serve": "ng serve --disable-host-check --port 4800 --deploy-url http://localhost:4800/ --live-reload false",
-    "build": "ng build",
+    "build": "ng build --prod=true --deploy-url=/",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
@@ -51,6 +50,7 @@
   },
   "singleapp": {
     "mountPath": "/ng-singleapp",
-    "output": "dist/ng-app"
+    "output": "dist/ng-app",
+    "serve": "ng serve --disable-host-check --port ${port} --deploy-url http://localhost:${port}/ --live-reload false"
   }
 }

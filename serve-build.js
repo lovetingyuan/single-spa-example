@@ -22,12 +22,16 @@ const getPort = str => {
 }
 
 const generateManifest = function (urlOrFile, singleApp) {
-  const isurl = isURL(urlOrFile)
+  const isFile = fs.existsSync(urlOrFile)
   const resolveUrl = url => {
-    if (!isurl || isURL(url)) return url
-    return Url.resolve(urlOrFile, url)
+    if (!isFile) return Url.resolve(urlOrFile, url)
+    if (isURL(url)) return url
+    if (url[0] === '.') {
+      throw new Error(`Relative asset path is not supported: ${url} of ${urlOrFile}.`)
+    }
+    return url[0] === '/' ? url : '/' + url
   }
-  return JSDOM[isurl ? 'fromURL' : 'fromFile'](urlOrFile, {
+  return JSDOM[isFile ? 'fromFile' : 'fromURL'](urlOrFile, {
     // resources
   }).then(dom => {
     const doc = dom.window.document
@@ -99,13 +103,6 @@ const targetApps = targetAppDirs.concat(
 ).map(dir => {
   const { singleapp, name } = require('./modules/' + dir + '/package.json')
   singleapp.name = singleapp.name || name
-  singleapp.publicPath = singleapp.publicPath || '/'
-  if (singleapp.publicPath[0] !== '/') {
-    singleapp.publicPath = '/' + singleapp.publicPath
-  }
-  if (!singleapp.publicPath.endsWith('/')) {
-    singleapp.publicPath = singleapp.publicPath + '/'
-  }
   if (!singleapp.mountPath) {
     throw new Error(`Error in "${singleapp.name}": You must set "singleapp.mountPath" in package.json.`)
   }
@@ -123,9 +120,14 @@ if (require.main === module) {
 }
 
 function serve () {
-  const startCmds = targetApps.map(({ port, dir, singleapp: {name} }) => {
+  const startCmds = targetApps.map(({ port, dir, singleapp: {name, serve} }) => {
+    if (!serve) {
+      serve = 'npm run serve'
+    } else {
+      serve = new Function('port', "return `" + serve + "`")(port)
+    }
     return {
-      command: `cd modules/${dir} && npx cross-env SINGLE_APP=development SINGLE_APP_DEV_PORT=${port} npm run serve`,
+      command: `cd modules/${dir} && npx cross-env SINGLE_APP=development SINGLE_APP_DEV_PORT=${port} ${serve}`,
       name: 'start:' + name
     }
   })
@@ -143,9 +145,7 @@ function serve () {
   const bundler = new Bundler(file, options);
   app.get('/__singleapp-manifest', (req, res, next) => {
     Promise.all(targetApps.map(({ port, singleapp }) => {
-      const origin = 'http://localhost:' + port
-      const startUrl = origin + singleapp.publicPath
-      return generateManifest(startUrl, singleapp)
+      return generateManifest('http://localhost:' + port + '/', singleapp)
     })).then(list => {
       res.json(list)
     }).catch(next)
@@ -189,12 +189,15 @@ function build () {
       })).then(list => {
         fs.writeFileSync('./manifest/index.js', `module.exports = ${JSON.stringify(list, null, 2)};`)
       })
-    }).then(() => concurrently([
-      {
-        command: `npx parcel build src/index.html --cache-dir ./node_modules/.cache`,
-        name: 'build:root'
-      }
-    ]))
+    }).then(() => {
+      fs.mkdirSync('dist')
+      return concurrently([
+        {
+          command: 'npm run build:root',
+          name: 'build:root'
+        }
+      ])
+    })
   }).then(() => {
     const copyDistCmds = targetApps.map(({ dir, singleapp }) => {
       return {
