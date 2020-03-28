@@ -14,12 +14,13 @@ const supportESM = 'noModule' in (document.createElement('script'))
 function loadApp (assets, name, mountPath) {
   const lifecycles = new Promise(resolve => {
     document.addEventListener('MODULE_LOADED:' + name, (evt) => {
-      resolve(typeof evt.detail === 'function' ? evt.detail({
+      const lifecycles = typeof evt.detail === 'function' ? evt.detail({
         name, mountPath
-      }) : evt.detail)
+      }) : evt.detail
+      resolve(lifecycles)
     })
   })
-  
+
   const assetsFragment = document.createDocumentFragment()
   const loadJsTasks = []
   assets.forEach(asset => {

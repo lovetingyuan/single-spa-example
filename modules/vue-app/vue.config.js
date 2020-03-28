@@ -1,12 +1,9 @@
-let publicPath = '/'
-
-if (process.env.SINGLE_APP === 'development') {
-  publicPath = 'http://localhost:' + process.env.SINGLE_APP_DEV_PORT + '/'
-}
-
 module.exports = {
   lintOnSave: false,
-  publicPath,
+  publicPath:
+    process.env.SINGLE_APP === 'development'
+      ? '//localhost:' + process.env.SINGLE_APP_DEV_PORT + '/'
+      : '/',
   devServer: {
     port: process.env.SINGLE_APP_DEV_PORT || 8080,
     headers: {

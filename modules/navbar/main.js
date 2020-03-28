@@ -8,6 +8,12 @@ const template = `
 <a href="/react-singleapp/" onclick="singleSpaNavigate(event)">react-app</a> |
 <a href="/ng-singleapp/" onclick="singleSpaNavigate(event)">angular-app</a>
 </nav>
+<style>
+nav {
+  background-color: #efefef;
+  padding: 10px 0;
+}
+</style>
 `
 
 let navbarContainer = null

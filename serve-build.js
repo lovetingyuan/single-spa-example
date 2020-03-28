@@ -157,6 +157,8 @@ function serve () {
     res.sendStatus(404)
   })
   const server = app.listen(1234)
+  console.log()
+  console.log('Single app starts at: http://localhost:1234')
   Array('SIGINT', 'SIGTERM', 'SIGHUP').forEach(sig => {
     process.on(sig, () => {
       server.close(() => {
@@ -190,7 +192,7 @@ function build () {
         fs.writeFileSync('./manifest/index.js', `module.exports = ${JSON.stringify(list, null, 2)};`)
       })
     }).then(() => {
-      fs.mkdirSync('dist')
+      fs.mkdirSync('./dist')
       return concurrently([
         {
           command: 'npm run build:root',

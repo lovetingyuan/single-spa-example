@@ -47,6 +47,7 @@
   },
   "singleapp": {
     "mountPath": "/react-singleapp",
-    "output": "build"
+    "output": "build",
+    "serve": "BROWSER=none PORT=${port} WDS_SOCKET_PORT=${port} PUBLIC_URL=//localhost:${port}/ npm start"
   }
 }

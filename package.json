@@ -6,7 +6,7 @@
   "scripts": {
     "serve": "npx cross-env NODE_ENV=development node serve-build",
     "build": "npx cross-env NODE_ENV=production node serve-build",
-    "build:root": "npx parcel build src/index.html --cache-dir ./node_modules/.cache --no-minify"
+    "build:root": "npx parcel build src/index.html --cache-dir ./node_modules/.cache"
   },
   "repository": {
     "type": "git",
@@ -16,7 +16,8 @@
     "single-spa",
     "microfrontends",
     "vue",
-    "react"
+    "react",
+    "angular"
   ],
   "author": "tingyuan",
   "license": "MIT",

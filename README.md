@@ -12,7 +12,6 @@ Micro app set up process:
     "name": "app name", // micro app name, must be unique, default is "name" of package.json
     "mountPath": "/app-name", // pathname starts with this will be loaded, default "/"
     "output": "dist", // static assets ouput dir, default "dist"
-    "publicPath": "/", // if your app runs at a specific path, please set up this, default is "/"
   }
 }
 ```
