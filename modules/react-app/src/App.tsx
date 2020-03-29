@@ -1,7 +1,6 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { singleapp } from '../package.json'
 import {
   BrowserRouter as Router,
   Switch,
@@ -19,8 +18,7 @@ import {
 // work properly.
 // const history = createBrowserHistory({ basename: '/your-base-name' });
 
-function BasicExample() {
-  const basename = window.singleApp ? singleapp.mountPath : process.env.PUBLIC_URL
+function BasicExample(basename: string) {
   return (
     <Router basename={basename}>
       <div>

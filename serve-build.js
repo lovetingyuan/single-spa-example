@@ -1,216 +1,41 @@
+const manifest = require('./src/manifest')
 const fs = require('fs')
-const path = require('path')
-const Url = require('url')
+const rimraf = require('rimraf')
 const concurrently = require('concurrently')
-const { JSDOM } = require('jsdom')
-
-const targetAppDirs = process.argv.slice(2)
-const allAppDirs = fs.readdirSync('./modules')
 const isBuild = process.env.NODE_ENV === 'production'
-const isURL = url => /^http(s)?:\/\/.+/.test(url)
 
-const getPort = str => {
-  let num = 1
-  for (let c of str) {
-    num = num * c.codePointAt(0)
-  }
-  num = num % 10000
-  if (num < 1000) {
-    num = num * (10 ** (4 - String(num).length))
-  }
-  return num
-}
-
-const generateManifest = function (urlOrFile, singleApp) {
-  const isFile = fs.existsSync(urlOrFile)
-  const resolveUrl = url => {
-    if (!isFile) return Url.resolve(urlOrFile, url)
-    if (isURL(url)) return url
-    if (url[0] === '.') {
-      throw new Error(`Relative asset path is not supported: ${url} of ${urlOrFile}.`)
-    }
-    return url[0] === '/' ? url : '/' + url
-  }
-  return JSDOM[isFile ? 'fromFile' : 'fromURL'](urlOrFile, {
-    // resources
-  }).then(dom => {
-    const doc = dom.window.document
-    const initAssets = [
-      ...doc.head.children,
-      ...doc.body.children
-    ].map(tag => {
-      if (tag.tagName === 'LINK' && tag.rel === 'stylesheet') {
-        return {
-          tag: 'link',
-          url: resolveUrl(tag.getAttribute('href'))
-        }
-      }
-      if (tag.tagName === 'STYLE') {
-        const content = tag.innerHTML.trim()
-        if (content) {
-          return {
-            tag: 'style',
-            source: content
-          }
-        }
-      }
-      if (tag.tagName === 'SCRIPT') {
-        const type = tag.getAttribute('type')
-        if (type && !['text/javascript', 'text/ecmascript', 'application/javascript', 'application/ecmascript', 'module'].includes(type)) return
-        const async = tag.getAttribute('async')
-        const defer = tag.getAttribute('defer')
-        const nomodule = tag.getAttribute('nomodule')
-        const src = tag.getAttribute('src')
-        if (src) {
-          if (src.endsWith('.hot-update.js')) return
-          return {
-            tag: 'script',
-            type,
-            url: resolveUrl(src),
-            async, defer, nomodule
-          }
-        } else {
-          const content = tag.innerHTML.trim()
-          if (content) {
-            return {
-              tag: 'script',
-              type: 'inline',
-              source: content
-            }
-          }
-        }
-      }
-    }).filter(Boolean)
-    try { dom.window.close() } catch (err) {}
-    if (singleApp) {
-      return {
-        assets: initAssets,
-        name: singleApp.name,
-        mountPath: singleApp.mountPath
-      }
-    }
-    return initAssets
-  })
-}
-
-const targetApps = targetAppDirs.concat(
-  allAppDirs.filter(dir => {
-    const { singleapp } = require('./modules/' + dir + '/package.json')
-    if (!singleapp || singleapp.disabled) return false
-    if (!targetAppDirs.length) return true
-    return (singleapp.mountPath === '/') && !targetAppDirs.includes(dir)
-  })
-).map(dir => {
-  const { singleapp, name } = require('./modules/' + dir + '/package.json')
-  singleapp.name = singleapp.name || name
-  if (!singleapp.mountPath) {
-    throw new Error(`Error in "${singleapp.name}": You must set "singleapp.mountPath" in package.json.`)
-  }
-  return {
-    port: getPort(singleapp.name), dir, singleapp
-  }
+rimraf.sync('./dist')
+setTimeout(() => {
+  fs.mkdirSync('./dist')
 })
 
-if (require.main === module) {
-  if (!isBuild) {
-    serve()
-  } else {
-    build()
+const cmds = [
+  ...Object.keys(manifest).map(name => {
+    const cmd = isBuild ? (manifest[name].build || 'npm run build') : (manifest[name].serve || 'npm run serve')
+    return {
+      command: `cd modules/${name} && npx cross-env SINGLE_APP=${process.env.NODE_ENV} ${cmd}`,
+      name: (isBuild ? 'build' : 'start') + ':' + name
+    }
+  }),
+  {
+    command: `npx parcel ${isBuild ? 'build' : ''} src/index.html --cache-dir ./node_modules/.cache/parcel`,
+    name: (isBuild ? 'build' : 'start') + ':root'
   }
-}
+]
 
-function serve () {
-  const startCmds = targetApps.map(({ port, dir, singleapp: {name, serve} }) => {
-    if (!serve) {
-      serve = 'npm run serve'
-    } else {
-      serve = new Function('port', "return `" + serve + "`")(port)
-    }
+concurrently(cmds, {
+  killOthers: ['failure'],
+}).then(() => {
+  const cmds = Object.keys(manifest).map(name => {
+    const dist = manifest[name].output || 'dist'
+    fs.copyFileSync(`./modules/${name}/${dist}/index.html`, `./modules/${name}/${dist}/${name}.html`)
     return {
-      command: `cd modules/${dir} && npx cross-env SINGLE_APP=development SINGLE_APP_DEV_PORT=${port} ${serve}`,
-      name: 'start:' + name
+      command: `npx merge-dirs modules/${name}/${dist} dist`,
+      name: 'copydist:' + name
     }
   })
-  concurrently(startCmds, {
-    killOthers: ['failure'],
-  })
-  const Bundler = require('parcel-bundler');
-  const app = require('express')();
+  return concurrently(cmds)
+}).catch(err => {
+  console.error(err)
+})
 
-  const file = 'src/index.html'; // Pass an absolute path to the entrypoint here
-  const options = {
-    cacheDir: './node_modules/.cache/parcel',
-    autoInstall: false
-  }; // See options section of api docs, for the possibilities
-  const bundler = new Bundler(file, options);
-  app.get('/__singleapp-manifest', (req, res, next) => {
-    Promise.all(targetApps.map(({ port, singleapp }) => {
-      return generateManifest('http://localhost:' + port + '/', singleapp)
-    })).then(list => {
-      res.json(list)
-    }).catch(next)
-  })
-
-  app.use(bundler.middleware())
-  app.use('*', (req, res, next) => {
-    console.log(req.url)
-    res.sendStatus(404)
-  })
-  const server = app.listen(1234)
-  console.log()
-  console.log('Single app starts at: http://localhost:1234')
-  Array('SIGINT', 'SIGTERM', 'SIGHUP').forEach(sig => {
-    process.on(sig, () => {
-      server.close(() => {
-        process.exit(0)
-      })
-    })
-  })
-}
-
-function build () {
-  fs.existsSync('./manifest') || fs.mkdirSync('./manifest')
-  const buildCmds = targetApps.map(({ dir }) => {
-    return {
-      command: `cd modules/${dir} && npx cross-env SINGLE_APP=production npm run build`,
-      name: 'build:' + dir
-    }
-  })
-  concurrently(buildCmds, {
-    killOthers: ['failure'],
-  }).then(() => {
-    return concurrently([
-      {
-        command: 'npx rimraf ./dist',
-        name: 'clean:dist'
-      },
-    ]).then(() => {
-      return Promise.all(targetApps.map(({ dir, singleapp }) => {
-        const indexHtml = path.join('./modules', dir, singleapp.output || 'dist', 'index.html')
-        return generateManifest(indexHtml, singleapp)
-      })).then(list => {
-        fs.writeFileSync('./manifest/index.js', `module.exports = ${JSON.stringify(list, null, 2)};`)
-      })
-    }).then(() => {
-      fs.mkdirSync('./dist')
-      return concurrently([
-        {
-          command: 'npm run build:root',
-          name: 'build:root'
-        }
-      ])
-    })
-  }).then(() => {
-    const copyDistCmds = targetApps.map(({ dir, singleapp }) => {
-      return {
-        command: `npx merge-dirs modules/${dir}/${singleapp.output || 'dist'} dist`,
-        name: 'copydist:' + dir
-      }
-    })
-    return concurrently(copyDistCmds)
-  }).then(() => {
-    console.log('Build Done!')
-  }).catch(err => {
-    console.error('Build Failed.', err)
-  })
-}

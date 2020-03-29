@@ -1,8 +1,11 @@
+import 'regenerator-runtime'
+
 import * as singleSpa from 'single-spa'
 import 'normalize.css'
+import manifestMap from './manifest'
 
 window.singleApp = window.singleApp || {
-  startApp (appName, lifecycles) {
+  startApp(appName, lifecycles) {
     document.dispatchEvent(new CustomEvent('MODULE_LOADED:' + appName, {
       detail: lifecycles
     }))
@@ -10,8 +13,96 @@ window.singleApp = window.singleApp || {
 }
 
 const supportESM = 'noModule' in (document.createElement('script'))
+const resolveUrl = (url, entry) => {
+  if (url.startsWith('http')) return url
+  if (url[0] === '.') {
+    throw new Error(`Relative asset path is not supported: ${url} of ${urlOrFile}.`)
+  }
+  if (url[0] !== '/') {
+    url = '/' + url
+  }
+  if (entry.startsWith('http')) {
+    return entry.slice(0, -1) + (entry.slice(-1) + url).replace(/\/\//g, '/')
+  }
+  return url
+}
 
-function loadApp (assets, name, mountPath) {
+const createElement = (tag, attrs) => {
+  const dom = document.createElement(tag)
+  if (typeof attrs === 'string') {
+    dom.textContent = attrs
+  } else {
+    Object.entries(attrs).forEach(([key, val]) => {
+      if (typeof val === 'string') {
+        dom.setAttribute(key, val)
+      }
+    })
+  }
+  return dom
+}
+
+async function loadApp(name, mountPath, entrypoint) {
+  const html = await fetch(entrypoint).then(res => res.text())
+  const domparser = new DOMParser()
+  const doc = domparser.parseFromString(html, 'text/html')
+  const assetsFragment = document.createDocumentFragment()
+  const loadAssetsTasks = []
+  Array(...doc.head.children, ...doc.body.children).forEach(tag => {
+    let dom
+    const tagName = tag.tagName.toLowerCase()
+    if (tagName === 'link' && tag.rel === 'stylesheet') {
+      dom = createElement(tagName, {
+        rel: 'stylesheet',
+        href: resolveUrl(tag.getAttribute('href'), entrypoint)
+      })
+    } else if (tagName === 'style') {
+      const type = tag.getAttribute('type')
+      if (type && type !== 'text/css') return
+      const media = tag.getAttribute('media')
+      dom = createElement(tagName, tag.textContent)
+      if (typeof media === 'string') {
+        dom.setAttribute('media', media)
+      }
+    } else if (tagName === 'script') {
+      const type = tag.getAttribute('type')
+      const src = tag.getAttribute('src')
+      if (
+        (
+          type && ![
+            'text/javascript',
+            'text/ecmascript',
+            'application/javascript',
+            'application/ecmascript',
+            'module'
+          ].includes(type)
+        ) ||
+        (src && src.endsWith('.hot-update.js'))
+      ) return
+      if (src) {
+        const nomodule = tag.getAttribute('nomodule')
+        dom = createElement(tagName, {
+          type,
+          src: resolveUrl(src, entrypoint),
+          async: tag.getAttribute('async'),
+          defer: tag.getAttribute('defer'),
+          nomodule
+        })
+        const task = (
+          (type === 'module' && !supportESM) ||
+          (typeof nomodule === 'string' && supportESM)
+        ) || new Promise((resolve, reject) => {
+          dom.onload = resolve
+          dom.onerror = reject
+        })
+        loadAssetsTasks.push(task)
+      } else {
+        dom = createElement(tagName, tag.textContent)
+      }
+    }
+    if (dom) {
+      assetsFragment.appendChild(dom)
+    }
+  })
   const lifecycles = new Promise(resolve => {
     document.addEventListener('MODULE_LOADED:' + name, (evt) => {
       const lifecycles = typeof evt.detail === 'function' ? evt.detail({
@@ -21,78 +112,30 @@ function loadApp (assets, name, mountPath) {
     })
   })
 
-  const assetsFragment = document.createDocumentFragment()
-  const loadJsTasks = []
-  assets.forEach(asset => {
-    const dom = document.createElement(asset.tag)
-    dom.dataset.singleappName = name
-    switch (asset.tag) {
-      case 'link': {
-        dom.setAttribute('rel', 'stylesheet')
-        dom.setAttribute('href', asset.url)
-        break
-      }
-      case 'style': {
-        dom.textContent = asset.source
-        break
-      }
-      case 'script': {
-        if (typeof asset.type === 'string' && asset.type !== 'inline') {
-          if (![
-            'text/javascript',
-            'text/ecmascript',
-            'application/javascript',
-            'application/ecmascript',
-            'module'
-          ].includes(asset.type)) break
-        }
-        if (asset.type !== 'inline') {
-          typeof asset.type === 'string' && dom.setAttribute('type', asset.type)
-          typeof asset.async === 'string' && dom.setAttribute('async', asset.async)
-          typeof asset.defer === 'string' && dom.setAttribute('defer', asset.defer)
-          typeof asset.nomodule === 'string' && dom.setAttribute('nomodule', '')
-          dom.setAttribute('src', asset.url)
-          
-          const task = (
-            (asset.type === 'module' && !supportESM) ||
-            (typeof asset.nomodule === 'string' && supportESM)
-          ) || new Promise((resolve, reject) => {
-            dom.onload = resolve
-            dom.onerror = reject
-          })
-          loadJsTasks.push(task)
-        } else {
-          dom.textContent = asset.source
-        }
-        break
-      }
-      default: {
-        throw new Error(`not support asset type: ${asset.tag}.`)
-      }
-    }
-    assetsFragment.appendChild(dom)
-  })
-  const assetsContaineId = 'assets:' + name
-  let container = document.getElementById(assetsContaineId)
-  if (!container) {
-    container = document.createElement('div')
-    container.id = assetsContaineId
-    container.style = 'display:none!important;'
-    document.body.appendChild(container)
+  const assetsContainerId = 'assets:' + name
+  let assetsContainer = document.getElementById(assetsContainerId)
+  if (!assetsContainer) {
+    assetsContainer = document.createElement('div')
+    assetsContainer.id = assetsContainerId
+    assetsContainer.style = 'display:none!important;'
+    document.body.appendChild(assetsContainer)
   }
-  container.innerHTML = ''
-  container.appendChild(assetsFragment)
+  assetsContainer.innerHTML = ''
+  assetsContainer.appendChild(assetsFragment)
 
-  return Promise.all(loadJsTasks).then(() => lifecycles)
+  return Promise.all(loadAssetsTasks).then(() => lifecycles)
 }
 
-function startSingleApp (manifestList) {
-  manifestList.forEach(({ name, assets, mountPath }) => {
+function startSingleApp() {
+  Object.entries(manifestMap).forEach(([name, { entrypoint, mountPath }]) => {
+    if (process.env.NODE_ENV === 'production') {
+      entrypoint = '/' + name + '.html'
+    }
     const apps = singleSpa.getAppNames();
     if (!apps.includes(name)) {
       singleSpa.registerApplication(
         name,
-        () => loadApp(assets, name, mountPath),
+        () => loadApp(name, mountPath, entrypoint),
         location => location.pathname.startsWith(mountPath)
       )
     }
@@ -100,19 +143,4 @@ function startSingleApp (manifestList) {
   singleSpa.start()
 }
 
-if (process.env.NODE_ENV === 'development') {
-  fetch('/__singleapp-manifest').then(res => res.json()).then(startSingleApp)
-} else {
-  const manifestList = require('../manifest')
-  startSingleApp(manifestList)
-}
-
-if (process.env.NODE_ENV === 'development' && module.hot) {
-  module.hot.accept(() => {
-    const pathname = location.pathname
-    singleSpa.navigateToUrl('/')
-    setTimeout(() => {
-      singleSpa.navigateToUrl(pathname)
-    })
-  })
-}
+startSingleApp()

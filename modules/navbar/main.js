@@ -1,12 +1,11 @@
-import { singleapp, name } from './package.json'
+import { render, html } from 'uhtml';
 
-const id = 'navbar-container'
-
-const template = `
+function bootstrap () {
+  render(document.getElementById('navbar-container') || document.body, html`
 <nav style="text-align: center; text-transform: capitalize;">
 <a href="/vue-singleapp" onclick="singleSpaNavigate(event)">vue-app</a> | 
 <a href="/react-singleapp/" onclick="singleSpaNavigate(event)">react-app</a> |
-<a href="/ng-singleapp/" onclick="singleSpaNavigate(event)">angular-app</a>
+<a href="/angular-singleapp/" onclick="singleSpaNavigate(event)">angular-app</a>
 </nav>
 <style>
 nav {
@@ -14,13 +13,7 @@ nav {
   padding: 10px 0;
 }
 </style>
-`
-
-let navbarContainer = null
-
-function bootstrap () {
-  navbarContainer = document.getElementById(id)
-  navbarContainer.innerHTML = template
+`);
   return Promise.resolve()
 }
 
@@ -33,7 +26,7 @@ function unmount () {
 }
 
 if (typeof singleApp === 'object') {
-  singleApp.startApp(singleapp.name || name, {
+  singleApp.startApp('navbar', {
     bootstrap, mount, unmount
   })
 } else {

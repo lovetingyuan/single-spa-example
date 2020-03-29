@@ -5,8 +5,7 @@
   "description": "example of single-spa.",
   "scripts": {
     "serve": "npx cross-env NODE_ENV=development node serve-build",
-    "build": "npx cross-env NODE_ENV=production node serve-build",
-    "build:root": "npx parcel build src/index.html --cache-dir ./node_modules/.cache"
+    "build": "npx cross-env NODE_ENV=production node serve-build"
   },
   "repository": {
     "type": "git",
@@ -40,5 +39,26 @@
   "dependencies": {
     "normalize.css": "^8.0.1",
     "single-spa": "^5.2.1"
+  },
+  "singleapp": {
+    "navbar": {
+      "entrypoint": "http://localhost:8081",
+      "mountPath": "/"
+    },
+    "ng-app": {
+      "entrypoint": "http://localhost:8082",
+      "mountPath": "/angular-singleapp",
+      "serve": "ng serve --disable-host-check --port 8082 --deploy-url http://localhost:8082/ --live-reload false"
+    },
+    "react-app": {
+      "entrypoint": "http://localhost:8083",
+      "mountPath": "/react-singleapp",
+      "output": "build",
+      "serve": "npm run start"
+    },
+    "vue-app": {
+      "entrypoint": "http://localhost:8084",
+      "mountPath": "/vue-singleapp"
+    }
   }
 }

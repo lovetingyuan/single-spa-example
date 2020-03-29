@@ -1,14 +1,12 @@
+const port = 8084
 module.exports = {
   lintOnSave: false,
   publicPath:
     process.env.SINGLE_APP === 'development'
-      ? '//localhost:' + process.env.SINGLE_APP_DEV_PORT + '/'
+      ? 'http://localhost:' + port + '/'
       : '/',
   devServer: {
-    port: process.env.SINGLE_APP_DEV_PORT || 8080,
-    headers: {
-      'Access-Control-Allow-Origin': '*'
-    }
+    port
   },
   configureWebpack: {
     output: {

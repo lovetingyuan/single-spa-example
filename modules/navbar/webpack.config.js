@@ -5,7 +5,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 let publicPath = '/'
 
 if (process.env.SINGLE_APP === 'development') {
-  publicPath = 'http://localhost:' + process.env.SINGLE_APP_DEV_PORT + '/'
+  publicPath = 'http://localhost:8081/'
 }
 
 module.exports = {
@@ -16,7 +16,7 @@ module.exports = {
     filename: '[name].[hash].js'
   },
   devServer: {
-    port: process.env.SINGLE_APP_DEV_PORT || 8080,
+    port: 8081,
   },
   module: {
     rules: [
@@ -33,3 +33,4 @@ module.exports = {
     new HtmlWebpackPlugin()
   ]
 }
+ 

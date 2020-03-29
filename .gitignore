@@ -67,6 +67,6 @@ dist
 .cache
 .fusebox
 
-/manifest
+/src/manifest.js
 
 .vscode

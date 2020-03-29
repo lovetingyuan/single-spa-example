@@ -62,9 +62,5 @@
       "vue-cli-service lint",
       "git add"
     ]
-  },
-  "singleapp": {
-    "name": "my vue app",
-    "mountPath": "/vue-singleapp"
   }
 }

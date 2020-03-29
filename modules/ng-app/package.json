@@ -47,10 +47,5 @@
     "ts-node": "~8.3.0",
     "tslint": "~5.18.0",
     "typescript": "~3.7.5"
-  },
-  "singleapp": {
-    "mountPath": "/ng-singleapp",
-    "output": "dist/ng-app",
-    "serve": "ng serve --disable-host-check --port ${port} --deploy-url http://localhost:${port}/ --live-reload false"
   }
 }

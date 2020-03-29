@@ -2257,6 +2257,11 @@
     semver "^6.3.0"
     tsutils "^3.17.1"
 
+"@ungap/create-content@^0.1.4":
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/@ungap/create-content/-/create-content-0.1.4.tgz#e30b40c527d40dbac598672fc2ad497f912b30c6"
+  integrity sha512-YM6YQkF5wUxJlw5yDzEAzJfPK/kXR/GxIARx4NNJCInfx/nirHmy3ujPjfi7CaXjcVCwyfpv3vKQm6h762lbRA==
+
 "@vue/babel-helper-vue-jsx-merge-props@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@vue/babel-helper-vue-jsx-merge-props/-/babel-helper-vue-jsx-merge-props-1.0.0.tgz#048fe579958da408fb7a8b2a3ec050b50a661040"
@@ -14564,6 +14569,16 @@ typescript@~3.7.2, typescript@~3.7.5:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.7.5.tgz#0692e21f65fd4108b9330238aac11dd2e177a1ae"
   integrity sha512-/P5lkRXkWHNAbcJIiHPfRoKqyd7bsyCma1hZNUGfn20qm64T6ZBlrzprymeu918H+mB/0rIg2gGK/BXkhhYgBw==
 
+uarray@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/uarray/-/uarray-1.0.0.tgz#e89bf0ea2129596f4bf653b66e53246ed6562b6c"
+  integrity sha512-LHmiAd5QuAv7pU2vbh+Zq9YOnqVK0H764p2Ozinpfy9ka58OID4IsGLiXsitqH7n0NAIDxvax1A/kDXpii/Ckg==
+
+udomdiff@^1.0.9:
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/udomdiff/-/udomdiff-1.0.9.tgz#5a681e7963198e95b11f919594417934e031a538"
+  integrity sha512-FzFYZsZ5TyyWcS0Xxw4/vYmhiLFLLBpMWb3X4pV14KHg2RkC5zTNw/OhBjJRkStFMUlNLj7/tkXfoUc1cxgB4Q==
+
 uglify-js@3.4.x:
   version "3.4.10"
   resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.4.10.tgz#9ad9563d8eb3acdfb8d38597d2af1d815f6a755f"
@@ -14572,10 +14587,35 @@ uglify-js@3.4.x:
     commander "~2.19.0"
     source-map "~0.6.1"
 
+uhandlers@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/uhandlers/-/uhandlers-0.2.0.tgz#7699c3b980548a4112a49efdd6f501924c875e36"
+  integrity sha512-NuXhWAjel/MK7Yg1l7jtuC2Bp/5vqrmxrg8wdJJ3fg0jKfxbcz+ghr2BMUx1xJsV2tvfMmL4etUZ11r0Hv2gEw==
+  dependencies:
+    uarray "^1.0.0"
+
+uhtml@^1.9.0:
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/uhtml/-/uhtml-1.9.0.tgz#c88514bfea218188b1c44ee0b3d149d535cc342f"
+  integrity sha512-FOm+JI0JDECBuIjaKixUh4xjRa64xb4U91Cv11ty1UAyryCZuFbX2ozM/XuzzZvAzuQ1ReirmKp8FB/X37HehA==
+  dependencies:
+    "@ungap/create-content" "^0.1.4"
+    uarray "^1.0.0"
+    udomdiff "^1.0.9"
+    uhandlers "^0.2.0"
+    umap "^1.0.2"
+    uparser "^0.2.1"
+    uwire "^1.0.1"
+
 ultron@~1.1.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/ultron/-/ultron-1.1.1.tgz#9fe1536a10a664a65266a1e3ccf85fd36302bc9c"
   integrity sha512-UIEXBNeYmKptWH6z8ZnqTeS8fV74zG0/eRU9VGkpzz+LIJNs8W/zM/L+7ctCkRrgbNnnR0xxw4bKOr0cW0N0Og==
+
+umap@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/umap/-/umap-1.0.2.tgz#2d7d4b145ad8c9f957921460798f3e221347c981"
+  integrity sha512-bW127HgG4H4VAD6qlqO5vCC+7bnlYvZ6A6BdwyGblkWvlEG7VYpj1bcpf3iJpvyKmkPZWDIeZDmoULz67ec7NA==
 
 uncss@^0.17.2:
   version "0.17.3"
@@ -14688,6 +14728,11 @@ unset-value@^1.0.0:
   dependencies:
     has-value "^0.3.1"
     isobject "^3.0.0"
+
+uparser@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/uparser/-/uparser-0.2.1.tgz#0251e7bca14ebeb222b79baf806784e40870ad47"
+  integrity sha512-hTwK8e+bAaER8gJBOysoFGjRPsX/xOthSPR/ieI9EgTf1rts9ey25tbDXIU0rDr/cGcLsvkCo1n8J/eccfAvvw==
 
 upath@^1.1.1:
   version "1.2.0"
@@ -14814,6 +14859,13 @@ uuid@^3.0.0, uuid@^3.0.1, uuid@^3.3.2:
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.4.0.tgz#b23e4358afa8a202fe7a100af1f5f883f02007ee"
   integrity sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==
+
+uwire@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/uwire/-/uwire-1.0.1.tgz#e1723aafd3cfc7bb039f6446d549095b72615b0e"
+  integrity sha512-LOFKTfjqUu+DXbOAxj2Jruy6KY2bDx+HT6JrTOHQFD3a7rPew0ZTkzxef2/1hRBn+YM5wRdwDMAqwqpxoEVWtg==
+  dependencies:
+    uarray "^1.0.0"
 
 v8-compile-cache@2.0.3:
   version "2.0.3"

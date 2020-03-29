@@ -2,21 +2,25 @@ import Vue, { ComponentOptions } from 'vue'
 import App from './App.vue'
 import router from './router'
 import singleSpaVue from 'single-spa-vue'
-import { singleapp, name } from '../package.json'
 
 Vue.config.productionTip = false
 
-const appOptions: ComponentOptions<Vue> = {
-  render: (h) => h(App),
-  router,
-}
-
 if (window.singleApp) {
-  appOptions.el = document.getElementById('vue-app-container') as Element
-  singleApp.startApp(singleapp.name || name, singleSpaVue({
-    Vue,
-    appOptions
-  }))
+  singleApp.startApp('vue-app', ({
+    mountPath
+  }: { mountPath: string }) => {
+    return singleSpaVue({
+      Vue,
+      appOptions: {
+        render: h => h(App),
+        el: document.getElementById('vue-app-container') as Element,
+        router: router(mountPath)
+      } as ComponentOptions<Vue>
+    })
+  })
 } else {
-  new Vue(appOptions).$mount('#app')
+  new Vue({
+    render: (h) => h(App),
+    router: router(process.env.BASE_URL),
+  }).$mount('#app')
 }
