@@ -17,17 +17,9 @@ nav {
   return Promise.resolve()
 }
 
-function mount () {
-  return Promise.resolve()
-}
-
-function unmount () {
-  return Promise.resolve()
-}
-
 if (typeof singleApp === 'object') {
   singleApp.startApp('navbar', {
-    bootstrap, mount, unmount
+    bootstrap
   })
 } else {
   bootstrap()

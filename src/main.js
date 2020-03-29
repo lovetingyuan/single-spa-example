@@ -108,6 +108,12 @@ async function loadApp(name, mountPath, entrypoint) {
       const lifecycles = typeof evt.detail === 'function' ? evt.detail({
         name, mountPath
       }) : evt.detail
+      if (!lifecycles.mount) {
+        lifecycles.mount = () => Promise.resolve()
+      }
+      if (!lifecycles.unmount) {
+        lifecycles.unmount = () => Promise.resolve()
+      }
       resolve(lifecycles)
     })
   })
