@@ -24,7 +24,7 @@ const resolveUrl = (url, entry) => {
   if (url[0] !== '/') {
     url = '/' + url
   }
-  if (entry.startsWith('http')) {
+  if (entry.startsWith('http') || entry.startsWith('//')) {
     return entry.slice(0, -1) + (entry.slice(-1) + url).replace(/\/\//g, '/')
   }
   return url
