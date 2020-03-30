@@ -14,7 +14,7 @@ window.singleApp = window.singleApp || {
 
 const supportESM = 'noModule' in (document.createElement('script'))
 const resolveUrl = (url, entry) => {
-  if (url.startsWith('http')) return url
+  if (url.startsWith('http') || url.startsWith('//')) return url
   if (url[0] === '.') {
     throw new Error(`Relative asset path is not supported: ${url} of ${urlOrFile}.`)
   }
@@ -108,8 +108,8 @@ async function loadApp(name, mountPath, entrypoint) {
       const lifecycles = typeof evt.detail === 'function' ? evt.detail({
         name, mountPath
       }) : evt.detail
-      if (!lifecycles.mount) {
-        lifecycles.mount = () => Promise.resolve()
+      if (!lifecycles.bootstrap) {
+        lifecycles.bootstrap = () => Promise.resolve()
       }
       if (!lifecycles.unmount) {
         lifecycles.unmount = () => Promise.resolve()
@@ -133,7 +133,9 @@ async function loadApp(name, mountPath, entrypoint) {
 }
 
 function startSingleApp() {
-  Object.entries(manifestMap).forEach(([name, { entrypoint, mountPath }]) => {
+  let defaultMountPath
+ 
+  Object.entries(manifestMap).forEach(([name, { entrypoint, mountPath, default: defaultApp }]) => {
     if (process.env.NODE_ENV === 'production') {
       entrypoint = '/' + name + '.html'
     }
@@ -144,6 +146,14 @@ function startSingleApp() {
         () => loadApp(name, mountPath, entrypoint),
         location => location.pathname.startsWith(mountPath)
       )
+    }
+    if (defaultApp) {
+      defaultMountPath = mountPath
+    }
+  })
+  window.addEventListener('single-spa:first-mount', () => {
+    if (defaultMountPath && location.pathname === '/') {
+      singleSpa.navigateToUrl(defaultMountPath)
     }
   })
   singleSpa.start()

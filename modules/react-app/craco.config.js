@@ -4,7 +4,7 @@ let publicPath = '/'
 if (process.env.SINGLE_APP === 'development') {
   process.env.BROWSER = 'none'
   process.env.WDS_SOCKET_PORT = port
-  publicPath = 'http://localhost:' + port + '/'
+  publicPath = '//localhost:' + port + '/'
 }
 
 module.exports = {

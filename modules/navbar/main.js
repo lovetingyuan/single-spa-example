@@ -1,6 +1,6 @@
 import { render, html } from 'uhtml';
 
-function bootstrap () {
+function mount () {
   render(document.getElementById('navbar-container') || document.body, html`
 <nav style="text-align: center; text-transform: capitalize;">
 <a href="/vue-singleapp" onclick="singleSpaNavigate(event)">vue-app</a> | 
@@ -19,8 +19,8 @@ nav {
 
 if (typeof singleApp === 'object') {
   singleApp.startApp('navbar', {
-    bootstrap
+    mount
   })
 } else {
-  bootstrap()
+  mount()
 }
