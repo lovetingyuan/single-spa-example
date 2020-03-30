@@ -1,4 +1,4 @@
-const manifest = require('./src/manifest')
+const { singleapp: manifest } = require('./package.json')
 const fs = require('fs')
 const rimraf = require('rimraf')
 const concurrently = require('concurrently')

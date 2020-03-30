@@ -1,10 +1,13 @@
 import 'regenerator-runtime'
 
 import * as singleSpa from 'single-spa'
-import 'normalize.css'
-import manifestMap from './manifest'
+import { singleapp as manifestMap } from '../package.json'
 
-window.singleApp = window.singleApp || {
+if (window.singleApp) {
+  throw new Error('Root app has been loaded.')
+}
+
+window.singleApp = {
   startApp(appName, lifecycles) {
     document.dispatchEvent(new CustomEvent('MODULE_LOADED:' + appName, {
       detail: lifecycles

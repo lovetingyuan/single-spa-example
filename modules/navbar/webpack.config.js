@@ -2,21 +2,15 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
-let publicPath = '/'
-
-if (process.env.SINGLE_APP === 'development') {
-  publicPath = 'http://localhost:8081/'
-}
-
 module.exports = {
   mode: process.env.NODE_ENV,
   entry: path.join(__dirname, 'main.js'),
   output: {
-    publicPath,
+    publicPath: process.env.PUBLIC_URL || '/',
     filename: '[name].[hash].js'
   },
   devServer: {
-    port: 8081,
+    port: process.env.PORT || 8081,
   },
   module: {
     rules: [

@@ -43,7 +43,8 @@
   "singleapp": {
     "navbar": {
       "entrypoint": "http://localhost:8081",
-      "mountPath": "/"
+      "mountPath": "/",
+      "serve": "npx cross-env PORT=8081 PUBLIC_URL=http://localhost:8081/ npm run serve"
     },
     "ng-app": {
       "entrypoint": "http://localhost:8082",
@@ -51,14 +52,16 @@
       "serve": "ng serve --disable-host-check --port 8082 --deploy-url http://localhost:8082/ --live-reload false"
     },
     "react-app": {
-      "entrypoint": "http://localhost:8083",
+      "entrypoint": "//localhost:8083",
       "mountPath": "/react-singleapp",
       "output": "build",
-      "serve": "npm run start"
+      "serve": "npx cross-env PUBLIC_URL=//localhost:8083/ BROWSER=none PORT=8083 WDS_SOCKET_PORT=8083 npm start"
     },
     "vue-app": {
       "entrypoint": "http://localhost:8084",
-      "mountPath": "/vue-singleapp"
+      "mountPath": "/vue-singleapp",
+      "serve": "npx cross-env PUBLIC_URL=http://localhost:8084/ npm run serve -- --port 8084 --public=http://localhost:8084",
+      "default": true
     }
   }
 }
