@@ -1,4 +1,4 @@
-### single-spa example including vue and react
+### single-spa example including vue, react and angular.
 
 1. `yarn install`
 2. `yarn serve` to start development at `http://localhost:1234`
@@ -25,7 +25,8 @@ module.exports = {
   },
   'vue-app': {
     entrypoint: 'http://localhost:8084',
-    mountPath: '/vue-singleapp'
+    mountPath: '/vue-singleapp',
+    default: true
   },
 }
 ```
