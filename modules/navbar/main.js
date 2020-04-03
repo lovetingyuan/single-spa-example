@@ -1,16 +1,28 @@
 import { render, html } from 'uhtml';
 
-function mount () {
+function mount (apps) {
   render(document.getElementById('navbar-container') || document.body, html`
 <nav style="text-align: center; text-transform: capitalize;">
-<a href="/vue-singleapp" onclick="singleSpaNavigate(event)">vue-app</a> | 
-<a href="/react-singleapp/" onclick="singleSpaNavigate(event)">react-app</a> |
-<a href="/angular-singleapp/" onclick="singleSpaNavigate(event)">angular-app</a>
+${
+  Object.entries(apps).map(([name, { mountPath }]) => {
+    if (name === 'navbar') {
+      name = 'home'
+    }
+    if (!mountPath.endsWith('/')) {
+      mountPath = mountPath + '/'
+    }
+    return html`<a href="${mountPath}" onclick="singleSpaNavigate(event)">${name}</a>`
+  })
+}
 </nav>
 <style>
 nav {
   background-color: #efefef;
   padding: 10px 0;
+}
+nav a {
+  display: inline-block;
+  margin: 0 20px;
 }
 </style>
 `);
@@ -19,8 +31,8 @@ nav {
 
 if (typeof singleApp === 'object') {
   singleApp.startApp('navbar', {
-    mount
+    mount() {
+      return mount(singleApp.appManifests)
+    }
   })
-} else {
-  mount()
 }

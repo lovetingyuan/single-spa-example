@@ -3,16 +3,16 @@ import 'regenerator-runtime'
 import * as singleSpa from 'single-spa'
 import { singleapp as manifestMap } from '../package.json'
 
-if (window.singleApp) {
-  throw new Error('Root app has been loaded.')
-}
-
 window.singleApp = {
   startApp(appName, lifecycles) {
     document.dispatchEvent(new CustomEvent('MODULE_LOADED:' + appName, {
       detail: lifecycles
     }))
   },
+  singleSpa,
+  get appManifests() {
+    return manifestMap
+  }
 }
 
 const supportESM = 'noModule' in (document.createElement('script'))
@@ -157,6 +157,14 @@ function startSingleApp() {
   window.addEventListener('single-spa:first-mount', () => {
     if (defaultMountPath && location.pathname === '/') {
       singleSpa.navigateToUrl(defaultMountPath)
+    }
+  })
+  window.addEventListener('single-spa:app-change', () => {
+    const mountedApps = singleSpa.getMountedApps()
+    if (mountedApps.length === 1) {
+      document.getElementById('no-app-container').style.display = 'block'
+    } else {
+      document.getElementById('no-app-container').style.display = 'none'
     }
   })
   singleSpa.start()
