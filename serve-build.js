@@ -12,8 +12,10 @@ setTimeout(() => {
 const cmds = [
   ...Object.keys(manifest).map(name => {
     const cmd = isBuild ? (manifest[name].build || 'npm run build') : (manifest[name].serve || 'npm run serve')
+    const { mountPath } = manifest[name]
     return {
-      command: `cd modules/${name} && npx cross-env SINGLE_APP=${process.env.NODE_ENV} ${cmd}`,
+      command: `cd modules/${name} && npx cross-env SINGLE_APP=${process.env.NODE_ENV} ` +
+        `SINGLE_APP_NAME=${JSON.stringify(name)} SINGLE_APP_MOUNT_PATH=${JSON.stringify(mountPath)} ${cmd}`,
       name: (isBuild ? 'build' : 'start') + ':' + name
     }
   }),
