@@ -1,7 +1,6 @@
-import 'regenerator-runtime'
-
+import 'normalize.css'
 import * as singleSpa from 'single-spa'
-import { singleapp as manifestMap } from '../package.json'
+import manifestMap from './single-app.json'
 
 window.singleApp = {
   startApp(appName, lifecycles) {
@@ -49,9 +48,9 @@ async function loadApp(name, mountPath, entrypoint) {
   const domparser = new DOMParser()
   const doc = domparser.parseFromString(html, 'text/html')
   const assetsFragment = document.createDocumentFragment()
-  const loadAssetsTasks = []
-  Array(...doc.head.children, ...doc.body.children).forEach(tag => {
+  const loadAssetsTasks = Array(...doc.head.children, ...doc.body.children).map(tag => {
     let dom
+    let task
     const tagName = tag.tagName.toLowerCase()
     if (tagName === 'link' && tag.rel === 'stylesheet') {
       dom = createElement(tagName, {
@@ -90,21 +89,22 @@ async function loadApp(name, mountPath, entrypoint) {
           defer: tag.getAttribute('defer'),
           nomodule
         })
-        const task = (
+        task = (
           (type === 'module' && !supportESM) ||
           (typeof nomodule === 'string' && supportESM)
         ) || new Promise((resolve, reject) => {
           dom.onload = resolve
           dom.onerror = reject
         })
-        loadAssetsTasks.push(task)
       } else {
         dom = createElement(tagName, tag.textContent)
       }
     }
     if (dom) {
+      dom.dataset.appName = name
       assetsFragment.appendChild(dom)
     }
+    return task
   })
   const lifecycles = new Promise(resolve => {
     document.addEventListener('MODULE_LOADED:' + name, (evt) => {
@@ -120,18 +120,7 @@ async function loadApp(name, mountPath, entrypoint) {
       resolve(lifecycles)
     })
   })
-
-  const assetsContainerId = 'assets:' + name
-  let assetsContainer = document.getElementById(assetsContainerId)
-  if (!assetsContainer) {
-    assetsContainer = document.createElement('div')
-    assetsContainer.id = assetsContainerId
-    assetsContainer.style = 'display:none!important;'
-    document.body.appendChild(assetsContainer)
-  }
-  assetsContainer.innerHTML = ''
-  assetsContainer.appendChild(assetsFragment)
-
+  document.head.appendChild(assetsFragment)
   return Promise.all(loadAssetsTasks).then(() => lifecycles)
 }
 
@@ -141,6 +130,9 @@ function startSingleApp() {
   Object.entries(manifestMap).forEach(([name, { entrypoint, mountPath, default: defaultApp }]) => {
     if (process.env.NODE_ENV === 'production') {
       entrypoint = '/' + name + '.html'
+    }
+    if (typeof entrypoint === 'number' || /^\d+$/.test(entrypoint)) {
+      entrypoint = 'http://localhost:' + entrypoint
     }
     const apps = singleSpa.getAppNames();
     if (!apps.includes(name)) {
@@ -161,11 +153,7 @@ function startSingleApp() {
   })
   window.addEventListener('single-spa:app-change', () => {
     const mountedApps = singleSpa.getMountedApps()
-    if (mountedApps.length === 1) {
-      document.getElementById('no-app-container').style.display = 'block'
-    } else {
-      document.getElementById('no-app-container').style.display = 'none'
-    }
+    document.getElementById('no-app-container').style.display = mountedApps.length === 1 ? 'block' : 'none'
   })
   singleSpa.start()
 }

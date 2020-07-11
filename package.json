@@ -38,29 +38,5 @@
   "dependencies": {
     "normalize.css": "^8.0.1",
     "single-spa": "^5.2.1"
-  },
-  "singleapp": {
-    "navbar": {
-      "entrypoint": "http://localhost:8081",
-      "mountPath": "/",
-      "serve": "npx cross-env PORT=8081 PUBLIC_URL=http://localhost:8081/ npm run serve"
-    },
-    "vue-app": {
-      "entrypoint": "http://localhost:8084",
-      "mountPath": "/vue-singleapp",
-      "serve": "npx cross-env PUBLIC_URL=http://localhost:8084/ npm run serve -- --port 8084 --public=http://localhost:8084",
-      "default": true
-    },
-    "react-app": {
-      "entrypoint": "//localhost:8083",
-      "mountPath": "/react-singleapp",
-      "output": "build",
-      "serve": "npx cross-env PUBLIC_URL=//localhost:8083/ BROWSER=none PORT=8083 WDS_SOCKET_PORT=8083 npm start"
-    },
-    "ng-app": {
-      "entrypoint": "http://localhost:8082",
-      "mountPath": "/angular-singleapp",
-      "serve": "ng serve --disable-host-check --port 8082 --deploy-url http://localhost:8082/ --live-reload false"
-    }
   }
 }

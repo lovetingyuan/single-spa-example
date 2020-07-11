@@ -1,18 +1,19 @@
-const { singleapp: manifest } = require('./package.json')
+const manifest = require('./src/single-app.json')
 const fs = require('fs')
 const rimraf = require('rimraf')
 const concurrently = require('concurrently')
 const isBuild = process.env.NODE_ENV === 'production'
 
-rimraf.sync('./dist')
-setTimeout(() => {
-  fs.mkdirSync('./dist')
-})
+if (isBuild) {
+  rimraf.sync('./dist')
+  setTimeout(() => {
+    fs.mkdirSync('./dist')
+  })
+}
 
 const cmds = [
-  ...Object.keys(manifest).map(name => {
-    const cmd = isBuild ? (manifest[name].build || 'npm run build') : (manifest[name].serve || 'npm run serve')
-    const { mountPath } = manifest[name]
+  ...Object.entries(manifest).map(([name, { build, serve, mountPath }]) => {
+    const cmd = isBuild ? (build || 'npm run build') : (serve || 'npm run serve')
     return {
       command: `cd modules/${name} && npx cross-env SINGLE_APP=${process.env.NODE_ENV} ` +
         `SINGLE_APP_NAME=${JSON.stringify(name)} SINGLE_APP_MOUNT_PATH=${JSON.stringify(mountPath)} ${cmd}`,
@@ -20,7 +21,7 @@ const cmds = [
     }
   }),
   {
-    command: `npx parcel ${isBuild ? 'build' : ''} src/index.html --cache-dir ./node_modules/.cache/parcel`,
+    command: `npx vite ${isBuild ? 'build' : 'serve'} src`,
     name: (isBuild ? 'build' : 'start') + ':root'
   }
 ]
