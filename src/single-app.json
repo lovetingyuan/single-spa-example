@@ -16,7 +16,7 @@
     "output": "build",
     "serve": "npx cross-env PUBLIC_URL=//localhost:8083/ BROWSER=none PORT=8083 WDS_SOCKET_PORT=8083 npm start"
   },
-  "ng-app": {
+  "_ng-app": {
     "entrypoint": "http://localhost:8082",
     "mountPath": "/angular-singleapp",
     "serve": "ng serve --disable-host-check --port 8082 --deploy-url http://localhost:8082/ --live-reload false"

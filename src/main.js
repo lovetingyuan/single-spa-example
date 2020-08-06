@@ -14,6 +14,17 @@ window.singleApp = {
   }
 }
 
+const originHeadAppend = document.head.appendChild
+document.head.appendChild = function (dom) {
+  if (dom instanceof HTMLElement && !dom.dataset.appName && document.currentScript) {
+    if (dom.tagName === 'STYLE' || dom.tagName === 'SCRIPT' || (dom.tagName === 'LINK' && dom.rel === 'stylesheet')) {
+      dom.dataset.appName = document.currentScript.dataset.appName
+      return originHeadAppend.call(this, dom)
+    }
+  }
+  return originHeadAppend.call(this, dom)
+}
+
 const supportESM = 'noModule' in (document.createElement('script'))
 const resolveUrl = (url, entry) => {
   if (url.startsWith('http') || url.startsWith('//')) return url
@@ -41,6 +52,15 @@ const createElement = (tag, attrs) => {
     })
   }
   return dom
+}
+
+const toggleStyles = (appName, disable) => {
+  document.querySelectorAll(`style[data-app-name="${appName}"]`).forEach(style => {
+    style.setAttribute('type', disable ? '_text/css' : 'text/css')
+  })
+  document.querySelectorAll(`link[data-app-name="${appName}"]`).forEach(link => {
+    link.setAttribute('rel', disable ? '_stylesheet' : 'stylesheet')
+  })
 }
 
 async function loadApp(name, mountPath, entrypoint) {
@@ -82,25 +102,45 @@ async function loadApp(name, mountPath, entrypoint) {
       ) return
       if (src) {
         const nomodule = tag.getAttribute('nomodule')
-        dom = createElement(tagName, {
-          type,
-          src: resolveUrl(src, entrypoint),
-          async: tag.getAttribute('async'),
-          defer: tag.getAttribute('defer'),
-          nomodule
-        })
         task = (
           (type === 'module' && !supportESM) ||
           (typeof nomodule === 'string' && supportESM)
         ) || new Promise((resolve, reject) => {
+          const scriptSrc = resolveUrl(src, entrypoint)
+          dom = createElement(tagName, {
+            type,
+            src: scriptSrc,
+            async: tag.getAttribute('async'),
+            defer: tag.getAttribute('defer'),
+            nomodule
+          })
+          dom.dataset.appName = name
+          document.head.appendChild(dom)
           dom.onload = resolve
           dom.onerror = reject
+          // fetch(scriptSrc).then(res => res.text()).then(code => {
+          //   const blob = new Blob([`with({
+          //     get document () { window.__appName__ = ${JSON.stringify(name)}; return document; }
+          //   }){\n${code};\n}`], { type: 'application/javascript' });
+          //   dom = createElement(tagName, {
+          //     type,
+          //     src: URL.createObjectURL(blob),
+          //     async: tag.getAttribute('async'),
+          //     defer: tag.getAttribute('defer'),
+          //     nomodule
+          //   })
+          //   dom.dataset.src = scriptSrc
+          //   dom.dataset.appName = name
+          //   originHeadAppend(dom)
+          //   dom.onload = resolve
+          //   dom.onerror = reject
+          // }).catch(reject)
         })
       } else {
         dom = createElement(tagName, tag.textContent)
       }
     }
-    if (dom) {
+    if (dom instanceof HTMLElement) {
       dom.dataset.appName = name
       assetsFragment.appendChild(dom)
     }
@@ -114,8 +154,16 @@ async function loadApp(name, mountPath, entrypoint) {
       if (!lifecycles.bootstrap) {
         lifecycles.bootstrap = () => Promise.resolve()
       }
-      if (!lifecycles.unmount) {
-        lifecycles.unmount = () => Promise.resolve()
+      const mount = lifecycles.mount
+      if (!mount) throw new Error(`Child app "${name}" lifecycle "mount" is required but got undefined.`)
+      lifecycles.mount = function (...args) {
+        toggleStyles(name, false)
+        return mount.call(this, ...args)
+      }
+      const unmount = lifecycles.unmount || (() => Promise.resolve())
+      lifecycles.unmount = function (...args) {
+        toggleStyles(name, true)
+        return unmount.call(this, ...args)
       }
       resolve(lifecycles)
     })
@@ -126,8 +174,9 @@ async function loadApp(name, mountPath, entrypoint) {
 
 function startSingleApp() {
   let defaultMountPath
- 
+
   Object.entries(manifestMap).forEach(([name, { entrypoint, mountPath, default: defaultApp }]) => {
+    if (name[0] === '_') return
     if (process.env.NODE_ENV === 'production') {
       entrypoint = '/' + name + '.html'
     }

@@ -1,7 +1,7 @@
-import { render, html } from 'uhtml';
+import { render, html as h } from 'uhtml';
 
 function mount (apps) {
-  render(document.getElementById('navbar-container') || document.body, html`
+  render(document.getElementById('navbar-container') || document.body, h`
 <nav style="text-align: center; text-transform: capitalize;">
 ${
   Object.entries(apps).map(([name, { mountPath }]) => {
@@ -11,7 +11,7 @@ ${
     if (!mountPath.endsWith('/')) {
       mountPath = mountPath + '/'
     }
-    return html`<a href="${mountPath}" onclick="singleSpaNavigate(event)">${name}</a>`
+    return h`<a href="${mountPath}" onclick="singleSpaNavigate(event)">${name}</a>`
   })
 }
 </nav>
