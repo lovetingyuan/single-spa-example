@@ -5,9 +5,13 @@ import Home from "../views/Home.vue";
 Vue.use(VueRouter);
 
 const router = (mountPath: string) => {
+  let base = mountPath
+  if (mountPath.startsWith('http')) {
+    base = new URL(mountPath).pathname
+  }
   return new VueRouter({
     mode: "history",
-    base: mountPath,
+    base,
     routes: [
       {
         path: '/',

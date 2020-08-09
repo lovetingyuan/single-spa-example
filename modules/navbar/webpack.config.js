@@ -6,7 +6,7 @@ module.exports = {
   mode: process.env.NODE_ENV,
   entry: path.join(__dirname, 'main.js'),
   output: {
-    publicPath: process.env.PUBLIC_URL || '/',
+    publicPath: process.env.SINGLE_APP_PUBLIC_PATH || '/',
     filename: '[name].[hash].js'
   },
   devServer: {
