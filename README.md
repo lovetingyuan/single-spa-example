@@ -1,22 +1,21 @@
 ### single-spa example including vue, react and angular.
 
 1. `yarn install`
-2. `yarn serve` to start development at `http://localhost:1234`
+2. `yarn serve` to start development at `http://localhost:3000`
 
 Micro app set up process: 
 
-1. add config in `singleapp` of `package.json`: 
+1. add config `single-app.json`
 ```json
 {
-  "singleapp": {
-    "new-app": {
-      "entrypoint": "http://localhost:8888/",
-      "mountPath": "/new-app-route",
-      "serve": "npm run serve",
-      "build": "npm run build",
-      "output": "dist",
-      "default": false
-    }
+  "new-app": {
+    "port": 8081,
+    "mountPath": "/new-app-route",
+    "publicPath": "/new-app/",
+    "serve": "npm run serve",
+    "build": "npm run build",
+    "output": "dist",
+    "default": false
   }
 }
 ```
@@ -26,4 +25,4 @@ For `webpack`, you could set `output.publicPath`.
 
 3. You have to ensure that `CORS` is enabled.
 
-4. use `window.singleApp.startApp(appName, appLifecycles)` to start your micro app.
+4. use `window.singleApp.startApp(appName, singleAppLifecycles)` to start your app.
