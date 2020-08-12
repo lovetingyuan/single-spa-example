@@ -11,7 +11,11 @@ function normalizeManifest (manifestMap: Record<AppNames, Manifest>) {
       ...manifest
     }
     let publicPath = manifest.publicPath || manifest.mountPath
-    if (!publicPath.endsWith('/')) publicPath += '/'
+    if (publicPath === '/') {
+      publicPath = '/' + name + '/'
+    } else if (!publicPath.endsWith('/')) {
+      publicPath += '/'
+    }
     _manifest.publicPath = publicPath
     _manifest.entry = 'http://localhost:' + manifest.port + publicPath
     _manifest.serve = manifest.serve || 'npm run serve'

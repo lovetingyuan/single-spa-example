@@ -67,8 +67,11 @@ function serve (rootEntry = 'http://localhost:3000/') {
     console.log(JSON.stringify(failedCmds, null, 2))
   })
   waitOn({ resources, delay: serveCmds.length * 1000 }).then(() => {
-    console.log()
-    console.log('Done, serve starts at ' + rootEntry)
+    setTimeout(() => {
+      console.log()
+      console.log('Done, serve starts at ' + rootEntry)
+      console.log()
+    });
   }).catch(err => {
     console.error(err)
   })
