@@ -32,7 +32,7 @@ nav a {
 if (typeof singleApp === 'object') {
   singleApp.startApp('navbar', {
     mount() {
-      return mount(singleApp.appManifests)
+      return mount(singleApp.singleAppConfig)
     }
   })
 }

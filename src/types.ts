@@ -1,9 +1,6 @@
-import config from './single-app.json'
 import SingleSpa, { LifeCycles } from 'single-spa'
 
-export type AppNames = keyof typeof config
-
-export interface Manifest {
+export interface Config {
   port: number
   mountPath: string
   publicPath?: string // default same with mountPath
@@ -11,17 +8,16 @@ export interface Manifest {
   default?: boolean // default false
 }
 
-export interface NormalizedManifest extends Required<Manifest> {
+export interface NormalizedConfig extends Required<Config> {
   entry: string // full url to access index.html
   serve: string
   build: string
 }
 
-export type NormalizedManifestMap = Record<AppNames, NormalizedManifest>
-
+export type NormalizedConfigs = Record<string, NormalizedConfig>
 
 export interface SingleApp {
-  startApp: (appName: AppNames, lifecycles: LifeCycles) => void,
+  startApp: (appName: string, lifecycles: LifeCycles) => void,
   singleSpa: typeof SingleSpa,
-  appManifests: NormalizedManifestMap
+  singleAppConfig: NormalizedConfigs
 }

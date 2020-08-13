@@ -9,9 +9,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "singlespa:serve": "ng s --project ng-app --disable-host-check --port ${port} --deploy-url ${entry} --serve-path ${publicPath} --live-reload false",
-    "singlespa:build": "ng build ng-app --prod --deploy-url ${publicPath}",
-    "build:single-spa:ng-app": "ng build ng-app --prod --deploy-url http://localhost:4200/",
-    "serve:single-spa:ng-app": "ng s --project ng-app --disable-host-check --port 4200 --deploy-url http://localhost:4200/ --live-reload false"
+    "singlespa:build": "ng build ng-app --prod --deploy-url ${publicPath}"
   },
   "private": true,
   "dependencies": {
