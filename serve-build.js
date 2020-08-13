@@ -10,6 +10,7 @@ const resolve = (...args) => path.resolve(__dirname, ...args)
 function normalizeManifest (manifestMap) {
   const normalizedManifestMap = {}
   Object.entries(manifestMap).forEach(([name, manifest]) => {
+    if (name[0] === '_') return
     const _manifest = normalizedManifestMap[name] = {
       publicPath: '', serve: '', build: '', output: '', entry: '', default: false,
       ...manifest
@@ -18,21 +19,20 @@ function normalizeManifest (manifestMap) {
     if (!publicPath.endsWith('/')) publicPath += '/'
     _manifest.publicPath = publicPath
     _manifest.entry = 'http://localhost:' + manifest.port + publicPath
-    _manifest.serve = manifest.serve || 'npm run serve'
-    _manifest.build = manifest.build || 'npm run build'
     _manifest.default = !!manifest.default
     _manifest.output = manifest.output || 'dist'
+    const appPkg = require(resolve('modules', name, 'package.json'))
+    const serve = appPkg.scripts['singlespa:serve'] || 'npm run serve'
+    const build = appPkg.scripts['singlespa:build'] || 'npm run build'
+    _manifest.serve = new Function('with(this){return `' + serve + '`}').call(_manifest)
+    _manifest.build = new Function('with(this){return `' + build + '`}').call(_manifest)
   })
   return normalizedManifestMap
 }
 
 const normalizedManifests = normalizeManifest(require('./src/single-app.json'))
 const walkManifests = (callback) => {
-  Object.entries(normalizedManifests).forEach(([name, manifest]) => {
-    if (name[0] !== '_') {
-      callback(name, manifest)
-    }
-  })
+  Object.entries(normalizedManifests).forEach(([name, manifest]) => callback(name, manifest))
 }
 
 function serve (rootEntry = 'http://localhost:3000/') {
@@ -43,6 +43,7 @@ function serve (rootEntry = 'http://localhost:3000/') {
     const serveCmd = new Function('with(this){return `' + serve + '`}').call(meta)
     const envars = Object.entries({
       NODE_ENV: 'development',
+      PORT: meta.port,
       SINGLE_APP_PUBLIC_PATH: entry, // development requires full url
       SINGLE_APP_NAME: name,
       SINGLE_APP_MOUNT_PATH: mountPath

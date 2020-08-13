@@ -1,7 +1,7 @@
 import { render, html as h } from 'uhtml';
 
 function mount (apps) {
-  render(document.getElementById('navbar-container') || document.body, h`
+  render(document.getElementById('navbar') || document.body, h`
 <nav style="text-align: center; text-transform: capitalize;">
 ${
   Object.entries(apps).map(([name, { mountPath }]) => {

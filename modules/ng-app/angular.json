@@ -8,15 +8,15 @@
       "schematics": {},
       "root": "",
       "sourceRoot": "src",
-      "prefix": "app",
+      "prefix": "ng-singleapp",
       "architect": {
         "build": {
           "builder": "@angular-builders/custom-webpack:browser",
           "options": {
-            "outputPath": "dist",
+            "outputPath": "dist/ng-app",
             "index": "src/index.html",
+            "main": "src\\main.ts",
             "polyfills": "src/polyfills.ts",
-            "main": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "aot": true,
             "assets": [
@@ -28,7 +28,9 @@
             ],
             "scripts": [],
             "customWebpackConfig": {
-              "path": "./extra-webpack.config.js"
+              "path": "extra-webpack.config.js",
+              "libraryName": "ng-app",
+              "libraryTarget": "umd"
             }
           },
           "configurations": {
@@ -40,7 +42,7 @@
                 }
               ],
               "optimization": true,
-              "outputHashing": "all",
+              "outputHashing": "none",
               "sourceMap": false,
               "extractCss": true,
               "namedChunks": false,

@@ -2,10 +2,8 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/app",
-    "resolveJsonModule": true,
-    "types": [
-      "node"
-    ]
+    "types": ["jasmine"],
+    "typeRoots": ["node_modules/@types", "./"]
   },
   "files": [
     "src/main.ts",
@@ -13,5 +11,8 @@
   ],
   "include": [
     "src/**/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }

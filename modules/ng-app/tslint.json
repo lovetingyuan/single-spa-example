@@ -12,13 +12,13 @@
     "directive-selector": [
       true,
       "attribute",
-      "app",
+      "ngSingleapp",
       "camelCase"
     ],
     "component-selector": [
       true,
       "element",
-      "app",
+      "ng-singleapp",
       "kebab-case"
     ],
     "import-blacklist": [

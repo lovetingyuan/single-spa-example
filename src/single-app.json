@@ -2,24 +2,21 @@
   "navbar": {
     "port": 8081,
     "mountPath": "/",
-    "publicPath": "/navbar/",
-    "serve": "npx cross-env PORT=${port} npm run serve"
+    "publicPath": "/navbar/"
   },
   "vue-app": {
     "port": 8082,
     "mountPath": "/vue-singleapp",
-    "serve": "npm run serve -- --port ${port} --public=${entry}",
     "default": true
   },
   "react-app": {
     "port": 8083,
     "mountPath": "/react-singleapp",
-    "output": "build",
-    "serve": "npx cross-env BROWSER=none PORT=${port} WDS_SOCKET_PORT=${port} npm start"
+    "output": "build"
   },
-  "_ng-app": {
-    "serve": "ng serve --disable-host-check --port 8082 --deploy-url http://localhost:8082/ --live-reload false",
+  "ng-app": {
     "port": 8084,
-    "mountPath": ""
+    "mountPath": "/ng-singleapp/",
+    "output": "dist/ng-app"
   }
 }

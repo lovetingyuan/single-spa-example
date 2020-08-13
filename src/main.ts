@@ -3,23 +3,28 @@ import * as singleSpa from 'single-spa'
 import manifestMap from './single-app.json'
 import { Manifest, AppNames, NormalizedManifestMap, NormalizedManifest } from './types'
 
-function normalizeManifest (manifestMap: Record<AppNames, Manifest>) {
+function normalizeManifest(manifestMap: Record<AppNames, Manifest>) {
   const normalizedManifestMap: NormalizedManifestMap = {} as NormalizedManifestMap
+  const publicPathes = new Set()
   Object.entries(manifestMap).forEach(([name, manifest]) => {
+    if (name[0] === '_') return
     const _manifest = normalizedManifestMap[name as AppNames] = {
       publicPath: '', serve: '', build: '', output: '', entry: '', default: false,
       ...manifest
     }
     let publicPath = manifest.publicPath || manifest.mountPath
-    if (publicPath === '/') {
+    if (publicPath === '/') { // publicPath can not be '/'
       publicPath = '/' + name + '/'
     } else if (!publicPath.endsWith('/')) {
       publicPath += '/'
     }
+    if (!publicPathes.has(publicPath)) {
+      publicPathes.add(publicPath)
+    } else {
+      throw new Error(`publicPath: ${publicPath} of ${name} has existed.`)
+    }
     _manifest.publicPath = publicPath
     _manifest.entry = 'http://localhost:' + manifest.port + publicPath
-    _manifest.serve = manifest.serve || 'npm run serve'
-    _manifest.build = manifest.build || 'npm run build'
     _manifest.default = !!manifest.default
     _manifest.output = manifest.output || 'dist'
   })
@@ -27,12 +32,9 @@ function normalizeManifest (manifestMap: Record<AppNames, Manifest>) {
 }
 
 const normalizedManifests = normalizeManifest(manifestMap)
+
 const walkManifests = (callback: (a: AppNames, b: NormalizedManifest) => any) => {
-  Object.entries(normalizedManifests).forEach(([name, manifest]) => {
-    if (name[0] !== '_') {
-      callback(name as AppNames, manifest)
-    }
-  })
+  Object.entries(normalizedManifests).forEach(([name, manifest]) => callback(name as AppNames, manifest))
 }
 
 window.singleApp = {
@@ -73,13 +75,13 @@ HTMLHeadElement.prototype.appendChild = function <T extends Node>(this: HTMLHead
 
 const supportESM = 'noModule' in (document.createElement('script'))
 
-const resolveUrl = (url: string) => {
+const resolveUrl = (url: string, publicPath: string) => {
   if (url.startsWith('http') || url.startsWith('//')) return url
   if (url[0] === '.') {
     throw new Error(`Relative url is not supported: ${url}.`)
   }
   if (url[0] !== '/') {
-    url = '/' + url
+    url = publicPath + url
   }
   return url
 }
@@ -108,11 +110,9 @@ const toggleStyles = (appName: AppNames, disable?: boolean) => {
 }
 
 async function loadApp(name: AppNames, mountPath: string, publicPath: string, entry: string) {
-  const entrypoint = process.env.NODE_ENV === 'production' ? publicPath : entry
+  const entrypoint = process.env.NODE_ENV === 'production' ? publicPath : (publicPath + '?request_index_html=' + encodeURIComponent(entry))
   const html = await fetch(entrypoint).then(res => res.text()).catch(err => {
-    if (process.env.NODE_ENV === 'development') {
-      alert('Make sure to enable CORS: ' + err.message)
-    }
+    console.log(`Failed to load sub app ${name}: ` + err)
   })
   if (!html) return Promise.reject(new Error(`Failed to load sub app ${name} at ${entrypoint}.`))
   const domparser = new DOMParser()
@@ -124,7 +124,7 @@ async function loadApp(name: AppNames, mountPath: string, publicPath: string, en
     if (tag instanceof HTMLLinkElement && tag.rel === 'stylesheet') {
       dom = createElement(tagName, {
         rel: 'stylesheet',
-        href: resolveUrl(tag.getAttribute('href') || '')
+        href: resolveUrl(tag.getAttribute('href') || '', publicPath)
       })
     } else if (tag instanceof HTMLStyleElement) {
       const type = tag.getAttribute('type')
@@ -157,7 +157,7 @@ async function loadApp(name: AppNames, mountPath: string, publicPath: string, en
         ) || new Promise((resolve, reject) => {
           dom = createElement(tagName, {
             type,
-            src: resolveUrl(src),
+            src: resolveUrl(src, publicPath),
             async: tag.getAttribute('async'),
             defer: tag.getAttribute('defer'),
             nomodule
@@ -229,6 +229,21 @@ function startSingleApp() {
       noapp.style.display = mountedApps.length === 1 ? 'block' : 'none'
     }
   })
+  window.addEventListener('single-spa:routing-event', (evt: any) => {
+    console.log('single-spa finished mounting/unmounting applications!');
+    console.log(evt.detail.originalEvent) // PopStateEvent
+    console.log(evt.detail.newAppStatuses) // { app1: MOUNTED, app2: NOT_MOUNTED }
+    console.log(evt.detail.appsByNewStatus) // { MOUNTED: ['app1'], NOT_MOUNTED: ['app2'] }
+    console.log(evt.detail.totalAppChanges) // 2
+  });
+  window.addEventListener('popstate', (evt: any) => {
+    if (evt.singleSpa) {
+      console.log('This event was fired by single-spa to forcibly trigger a re-render')
+      console.log(evt.singleSpaTrigger); // pushState | replaceState
+    } else {
+      console.log('This event was fired by native browser behavior')
+    }
+  });
   singleSpa.start()
 }
 

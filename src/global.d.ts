@@ -1,18 +1,6 @@
-import SingleSpa, { LifeCycles } from 'single-spa'
-import { NormalizedManifest, NormalizedManifestMap } from './types'
-
+import { SingleApp } from './types'
 declare global {
   interface Window {
-    singleApp: {
-      startApp: (appName: string, lifecycles: LifeCycles) => void,
-      singleSpa: typeof SingleSpa,
-      appManifests: NormalizedManifestMap
-    }
+    singleApp: SingleApp
   }
 }
-
-// declare var singleApp: {
-//   startApp: (appName: string, lifecycles: LifeCycles) => void,
-//   singleSpa: typeof SingleSpa,
-//   appManifests: NormalizedManifestMap
-// }

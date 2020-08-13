@@ -24,13 +24,15 @@
     "url": "https://github.com/lovetingyuan/single-spa-example/issues"
   },
   "homepage": "https://github.com/lovetingyuan/single-spa-example#readme",
-  "workspaces": [
+  "_workspaces": [
     "modules/*"
   ],
   "devDependencies": {
+    "@types/node": "^14.0.27",
     "concurrently": "^5.3.0",
     "cross-env": "^7.0.2",
     "fs-extra": "^9.0.1",
+    "got": "^11.5.2",
     "wait-on": "^5.2.0"
   },
   "dependencies": {
