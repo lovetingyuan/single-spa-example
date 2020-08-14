@@ -36,7 +36,7 @@ function normalizeManifest (manifestMap) {
   return normalizedManifestMap
 }
 
-const normalizedManifests = normalizeManifest(require('./src/single-app.json'))
+const normalizedManifests = normalizeManifest(require('./modules/package.json').singleapp)
 const walkManifests = (callback) => {
   Object.entries(normalizedManifests).forEach(([name, manifest]) => callback(name, manifest))
 }
@@ -61,7 +61,7 @@ function serve (rootEntry = 'http://localhost:3000/') {
     resources.push(entry)
   })
   const rootCmd = {
-    command: 'vite serve src', name: 'serve:root'
+    command: 'vite serve ./', name: 'serve:root'
   }
   const serveCmds = modulesCmds.concat(rootCmd)
   concurrently(serveCmds, {
@@ -87,7 +87,7 @@ function serve (rootEntry = 'http://localhost:3000/') {
 function build () {
   const modulesCmds = []
   const rootCmd = {
-    command: 'vite build src --outDir dist', name: 'build:root'
+    command: 'vite build ./ --outDir dist', name: 'build:root'
   }
   walkManifests((name, meta) => {
     const { build, mountPath, publicPath } = meta

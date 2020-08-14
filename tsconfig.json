@@ -39,13 +39,16 @@
       "node"
     ],
     "typeRoots": [
-      "../node_modules/@types",
-      "./"
+      "node_modules/@types"
     ]
   },
   "files": [
-    "main.ts",
-    "global.d.ts"
+    "src/main.ts",
+    "src/global.d.ts"
+  ],
+  "exclude": [
+    "modules/*",
+    "node_modules/*"
   ],
   "compileOnSave": false
 }

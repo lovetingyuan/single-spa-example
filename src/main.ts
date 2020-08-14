@@ -1,25 +1,14 @@
 import 'normalize.css'
 import * as singleSpa from 'single-spa'
-import singleAppConfig from './single-app.json'
+// @ts-ignore
+import { singleapp } from '../modules/package.json'
 import normalizeConfig from './normalizeConfig'
 import getLifecycles from './getLifecycles'
 import injectAsssets from './injectAssets'
 import patchInject from './patchInject'
+import { Config } from './types'
 
-const normalizedConfig = normalizeConfig(singleAppConfig)
-patchInject(normalizedConfig)
-
-window.singleApp = {
-  singleSpa,
-  startApp(appName, lifecycles) {
-    document.dispatchEvent(new CustomEvent('MODULE_LOADED:' + appName, {
-      detail: lifecycles
-    }))
-  },
-  get singleAppConfig() {
-    return normalizedConfig
-  }
-}
+startSingleApp(singleapp)
 
 function loadApp(name: string, mountPath: string, publicPath: string, entry: string) {
   let entrypoint = publicPath
@@ -35,7 +24,21 @@ function loadApp(name: string, mountPath: string, publicPath: string, entry: str
   })
 }
 
-function startSingleApp() {
+function startSingleApp(singleAppConfig: Record<string, Config>) {
+  const normalizedConfig = normalizeConfig(singleAppConfig)
+  patchInject(normalizedConfig)
+
+  window.singleApp = {
+    singleSpa,
+    startApp(appName, lifecycles) {
+      document.dispatchEvent(new CustomEvent('MODULE_LOADED:' + appName, {
+        detail: lifecycles
+      }))
+    },
+    get singleAppConfig() {
+      return normalizedConfig
+    }
+  }
   let defaultMountPath: string
   Object.entries(normalizedConfig).forEach(([name, config]) => {
     const { entry, publicPath, default: defaultApp, mountPath } = config
@@ -80,5 +83,3 @@ function startSingleApp() {
   });
   singleSpa.start()
 }
-
-startSingleApp()

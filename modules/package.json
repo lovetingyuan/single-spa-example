@@ -1,7 +1,29 @@
 {
-  "name": "root",
+  "name": "modules",
   "private": true,
   "devDependencies": {
     "lerna": "^3.22.1"
+  },
+  "singleapp": {
+    "navbar": {
+      "port": 8081,
+      "mountPath": "/",
+      "publicPath": "/navbar/"
+    },
+    "vue-app": {
+      "port": 8082,
+      "mountPath": "/vue-singleapp",
+      "default": true
+    },
+    "react-app": {
+      "port": 8083,
+      "mountPath": "/react-singleapp",
+      "output": "build"
+    },
+    "ng-app": {
+      "port": 8084,
+      "mountPath": "/ng-singleapp/",
+      "output": "dist/ng-app"
+    }
   }
 }

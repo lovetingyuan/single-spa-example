@@ -5,7 +5,7 @@
 
 Micro app set up process: 
 
-1. add config `single-app.json`
+1. add config `singleapp` in `modules/package.json`
 ```json
 {
   "new-app": {
