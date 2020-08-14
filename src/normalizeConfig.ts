@@ -6,14 +6,17 @@ export default function normalizeConfig(manifestMap: Record<string, Config>) {
   Object.entries(manifestMap).forEach(([name, manifest]) => {
     if (name[0] === '_') return
     const _manifest = normalizedManifestMap[name] = {
-      publicPath: '', serve: '', build: '', output: '', entry: '', default: false,
+      publicPath: '', output: '', entry: '', default: false,
       ...manifest
     }
     let publicPath = manifest.publicPath || manifest.mountPath
     if (publicPath === '/') { // publicPath can not be '/'
       publicPath = '/' + name + '/'
-    } else if (!publicPath.endsWith('/')) {
-      publicPath += '/'
+    } else {
+      if (!publicPath.endsWith('/')) {
+        publicPath += '/'
+      }
+      if (publicPath[0] !== '/') publicPath = '/' + publicPath
     }
     if (!publicPathes.has(publicPath)) {
       publicPathes.add(publicPath)
@@ -25,5 +28,5 @@ export default function normalizeConfig(manifestMap: Record<string, Config>) {
     _manifest.default = !!manifest.default
     _manifest.output = manifest.output || 'dist'
   })
-  return normalizedManifestMap
+  return Object.freeze(normalizedManifestMap)
 }

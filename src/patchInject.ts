@@ -1,7 +1,8 @@
 import { NormalizedConfigs } from './types'
+export const rawHeadAppend = HTMLHeadElement.prototype.appendChild
 
+// just for disable css, but not 100% effective.
 export default function patchInject(normalizedConfig: NormalizedConfigs) {
-  const rawHeadAppend = HTMLHeadElement.prototype.appendChild
   HTMLHeadElement.prototype.appendChild = function <T extends Node>(this: HTMLHeadElement, dom: T): T {
     if (!(dom instanceof HTMLElement)) {
       return rawHeadAppend.call(this, dom) as T
@@ -19,15 +20,18 @@ export default function patchInject(normalizedConfig: NormalizedConfigs) {
         const url = dom instanceof HTMLScriptElement ? dom.src : dom.href
         if (url) {
           const pathname = url.startsWith('http') ? new URL(url).pathname : url
+          let max = 0
           Object.entries(normalizedConfig).forEach(([name, config]) => {
-            if (pathname.startsWith(config.publicPath)) dom.dataset.appName = name
+            if (pathname.startsWith(config.publicPath) && config.publicPath.length > max) {
+              max = config.publicPath.length
+              dom.dataset.appName = name
+            }
           })
         }
-      } else {
+      } else { // for async script or module script, inject style can not obtain appName
         console.warn('Unknown style tag.')
       }
     }
     return rawHeadAppend.call(this, dom) as T
   }
-  return rawHeadAppend
 }

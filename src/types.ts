@@ -8,10 +8,8 @@ export interface Config {
   default?: boolean // default false
 }
 
-export interface NormalizedConfig extends Required<Config> {
-  entry: string // full url to access index.html
-  serve: string
-  build: string
+export interface NormalizedConfig extends Readonly<Required<Config>> {
+  readonly entry: string // full url to access index.html
 }
 
 export type NormalizedConfigs = Record<string, NormalizedConfig>

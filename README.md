@@ -18,7 +18,9 @@ Micro app set up process:
 }
 ```
 
-2. You have to ensure that assets url in your app must be complete url(with http or https).
+2. You have to ensure that assets url in your app must be complete url(with http or https) in development.
 For `webpack`, you could set `output.publicPath`.
 
-3. use `window.singleApp.startApp(appName, singleSpaLifecycles)` to start your app.
+3. You have to offer `singlespa:serve` and `singlespa:build` npm scripts to perform development and build.
+
+4. use `window.singleApp.startApp(appName, singleSpaLifecycles)` to start your app.

@@ -8,7 +8,6 @@ const scriptTypes = [
   'module'
 ]
 
-
 function createElement (tagName: 'script' | 'link' | 'style', attrs: Attr[], textContent?: string | null) {
   const dom = document.createElement(tagName)
   attrs.forEach(attr => {

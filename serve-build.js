@@ -22,8 +22,14 @@ function normalizeManifest (manifestMap) {
     _manifest.default = !!manifest.default
     _manifest.output = manifest.output || 'dist'
     const appPkg = require(resolve('modules', name, 'package.json'))
-    const serve = appPkg.scripts['singlespa:serve'] || 'npm run serve'
-    const build = appPkg.scripts['singlespa:build'] || 'npm run build'
+    const serve = appPkg.scripts['singlespa:serve']
+    const build = appPkg.scripts['singlespa:build'] || appPkg.scripts.build
+    if (!serve) {
+      throw new Error(`Missing serve command "singlespa:serve" in ${name} package.json.`)
+    }
+    if (!build) {
+      throw new Error(`Missing build command "singlespa:build" in ${name} package.json.`)
+    }
     _manifest.serve = new Function('with(this){return `' + serve + '`}').call(_manifest)
     _manifest.build = new Function('with(this){return `' + build + '`}').call(_manifest)
   })
@@ -70,7 +76,7 @@ function serve (rootEntry = 'http://localhost:3000/') {
   waitOn({ resources, delay: serveCmds.length * 1000 }).then(() => {
     setTimeout(() => {
       console.log()
-      console.log('Done, serve starts at ' + rootEntry)
+      console.log(' Done, serve starts at ' + rootEntry)
       console.log()
     });
   }).catch(err => {
@@ -81,7 +87,7 @@ function serve (rootEntry = 'http://localhost:3000/') {
 function build () {
   const modulesCmds = []
   const rootCmd = {
-    command: 'vite build src --outDir dist --minify false', name: 'build:root'
+    command: 'vite build src --outDir dist', name: 'build:root'
   }
   walkManifests((name, meta) => {
     const { build, mountPath, publicPath } = meta

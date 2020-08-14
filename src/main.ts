@@ -10,12 +10,12 @@ const normalizedConfig = normalizeConfig(singleAppConfig)
 patchInject(normalizedConfig)
 
 window.singleApp = {
+  singleSpa,
   startApp(appName, lifecycles) {
     document.dispatchEvent(new CustomEvent('MODULE_LOADED:' + appName, {
       detail: lifecycles
     }))
   },
-  singleSpa,
   get singleAppConfig() {
     return normalizedConfig
   }
