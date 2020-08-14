@@ -17,6 +17,7 @@ function normalizeManifest (manifestMap) {
     }
     let publicPath = manifest.publicPath || manifest.mountPath
     if (!publicPath.endsWith('/')) publicPath += '/'
+    if (publicPath[0] !== '/') publicPath = '/' + publicPath
     _manifest.publicPath = publicPath
     _manifest.entry = 'http://localhost:' + manifest.port + publicPath
     _manifest.default = !!manifest.default
@@ -30,8 +31,8 @@ function normalizeManifest (manifestMap) {
     if (!build) {
       throw new Error(`Missing build command "singlespa:build" in ${name} package.json.`)
     }
-    _manifest.serve = new Function('with(this){return `' + serve + '`}').call(_manifest)
-    _manifest.build = new Function('with(this){return `' + build + '`}').call(_manifest)
+    _manifest.serve = serve
+    _manifest.build = build
   })
   return normalizedManifestMap
 }
@@ -46,7 +47,6 @@ function serve (rootEntry = 'http://localhost:3000/') {
   const resources = [rootEntry]
   walkManifests((name, meta) => {
     const { serve, mountPath, entry } = meta
-    const serveCmd = new Function('with(this){return `' + serve + '`}').call(meta)
     const envars = Object.entries({
       NODE_ENV: 'development',
       PORT: meta.port,
@@ -54,6 +54,9 @@ function serve (rootEntry = 'http://localhost:3000/') {
       SINGLE_APP_NAME: name,
       SINGLE_APP_MOUNT_PATH: mountPath
     }).map(([env, val]) => `${env}=${val}`)
+    const serveCmd = new Function('with(this){return `' + serve + '`}').call({
+      port: meta.port, publicPath: meta.publicPath, entry, envs: 'cross-env ' + envars.join(' ')
+    })
     modulesCmds.push({
       name: `serve:${name}`,
       command: `cd modules/${name} && npx cross-env ${envars.join(' ')} ${serveCmd}`
@@ -91,13 +94,15 @@ function build () {
   }
   walkManifests((name, meta) => {
     const { build, mountPath, publicPath } = meta
-    const buildCmd = new Function('with(this){return `' + build + '`}').call(meta)
     const envars = Object.entries({
       NODE_ENV: 'production',
       SINGLE_APP_PUBLIC_PATH: publicPath,
       SINGLE_APP_NAME: name,
       SINGLE_APP_MOUNT_PATH: mountPath
     }).map(([env, val]) => `${env}=${val}`)
+    const buildCmd = new Function('with(this){return `' + build + '`}').call({
+      publicPath, envs: 'cross-env ' + envars.join(' ')
+    })
     modulesCmds.push({
       name: `build:${name}`,
       command: `cd modules/${name} && npx cross-env ${envars.join(' ')} ${buildCmd}`

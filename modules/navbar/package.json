@@ -5,6 +5,7 @@
   "scripts": {
     "serve": "npx cross-env NODE_ENV=development webpack-dev-server",
     "singlespa:serve": "webpack-dev-server",
+    "singlespa:build": "npx rimraf dist && ${envs} npx webpack",
     "build": "npx rimraf dist && npx cross-env NODE_ENV=production webpack"
   },
   "devDependencies": {
