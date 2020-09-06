@@ -1,6 +1,6 @@
 /**
- * @fileoverview Rule to flag use of continue statement
- * @author Borislav Zhivkov
+ * @fileoverview Rule to disable setTimeout and setInterval
+ * @author tingyuan
  */
 
 "use strict";

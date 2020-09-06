@@ -1,5 +1,5 @@
 /**
- * @fileoverview Rule to avoid side effect.
+ * @fileoverview Rule to avoid event listener effection.
  * @author tingyuan
  */
 

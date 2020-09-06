@@ -1,6 +1,6 @@
 /**
  * @fileoverview detect effect of global
- * @author ty
+ * @author tingyuan
  */
 "use strict";
 
@@ -28,7 +28,21 @@ module.exports = {
         "no-extend-native": "error",
         "no-global-assign": "error",
         "no-implicit-globals": "error",
-        "no-restricted-globals": "error"
+        "no-restricted-globals":[
+          "error",
+          {
+            "name": "self",
+            "message": "self is a global variable, use other instead."
+          },
+          {
+            "name": "top",
+            "message": "top is a global variable, use other instead."
+          },
+          {
+            "name": "parent",
+            "message": "parent is a global variable, use other instead."
+          }
+        ]
       }
     }
   }

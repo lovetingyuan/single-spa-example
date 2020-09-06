@@ -1,5 +1,5 @@
 /**
- * @fileoverview Rule to flag use of continue statement
+ * @fileoverview Rule to disable produce effection on global context.
  * @author tingyuan
  */
 
