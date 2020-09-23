@@ -1,5 +1,4 @@
 // const parser = require('postcss-selector-parser');
-
 module.exports = (opts = { }) => {
   if (!opts.namespaceClass) {
     throw new Error('namespaceClass is required.')
@@ -8,8 +7,10 @@ module.exports = (opts = { }) => {
   // Work with options here
   return {
     postcssPlugin: 'postcss-plugin-classns',
-    Root (root, postcss) {
-      root.walkRules((child, i) => {
+    Root (root, postcss) { // eslint-disable-line
+      root.walkRules((child) => {
+        if (child.parent && child.parent.type === 'atrule' && child.parent.name === 'keyframes') return child
+        if (child.selector === ':root') return child
         if (child.selectors) {
           child.selectors = child.selectors.map(selector => {
             return nsclass + ' ' + selector
