@@ -11,7 +11,7 @@
 ```
 
 ```css
-.subapp .foo {
+.namespace .foo {
   /* Output example */
 }
 ```
@@ -36,7 +36,12 @@ and set this plugin in settings.
 ```diff
 module.exports = {
   plugins: [
-+   require('postcss-plugin-classns'),
++   require('postcss-plugin-classns')({
++     namespaceClass: '.namespace',
++     ignoreSelector(selector) {
++       if (selector.startsWith('.g-')) return true
++     }
++   }),
     require('autoprefixer')
   ]
 }

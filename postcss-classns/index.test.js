@@ -20,6 +20,7 @@ postcss([plugin({
 
   }
 }
+:root {}
 `, { from: undefined }).then((ret) => {
   console.log(ret.css)
 }).catch(err => {
