@@ -13,7 +13,7 @@ postcss([plugin({
   
 }
 .b > p ~ .foo #fdsf {
-  .c {
+  .c { /* classns-ignore */
 
   }
   .d {

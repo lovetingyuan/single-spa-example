@@ -29,7 +29,28 @@ export default function patchInject(normalizedConfig: NormalizedConfigs) {
           })
         }
       } else { // for async script or module script, inject style can not obtain appName
-        console.warn('Unknown style tag.')
+        try {
+          throw new Error('Unknown style tag.')
+        } catch (err) {
+          const stacks: string[] = err.stack.split('\n').map((v: string) => v.trim())
+          const targetIndex = stacks.findIndex((v) => {
+            return v.includes('HTMLHeadElement.appendChild')
+          }) + 1
+          if (targetIndex && stacks[targetIndex]) {
+            const result = /https?:\/\/.+/.exec(stacks[targetIndex])
+            if (result) {
+              const url = new URL(result[0])
+              Object.entries(normalizedConfig).forEach(([name, config]) => {
+                if (url.pathname.startsWith(config.publicPath)) {
+                  dom.dataset.appName = name
+                }
+              })
+            }
+          }
+        }
+      }
+      if (!dom.dataset.appName) {
+        console.warn('Unknown style tag: ', dom)
       }
     }
     return rawHeadAppend.call(this, dom) as T

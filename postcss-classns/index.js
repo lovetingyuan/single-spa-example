@@ -19,6 +19,7 @@ module.exports = (opts) => {
           child.nodes[0].type === 'comment' &&
           child.nodes[0].text.trim() === 'classns-ignore'
         ) {
+          child.nodes[0].remove()
           return child
         }
         if (

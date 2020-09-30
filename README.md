@@ -1,6 +1,6 @@
 ### single-spa example including vue, react and angular.
 
-1. `yarn install` and `cd modules && lerna bootstrap`
+1. `yarn install` and `cd modules && npx lerna bootstrap`
 2. `yarn serve` to start development at `http://localhost:3000`
 
 Micro app set up process: 
