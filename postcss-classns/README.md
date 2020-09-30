@@ -8,11 +8,23 @@
 .foo {
     /* Input example */
 }
+.g-bar {
+    color: red;
+}
+.global { /* classns-ignore */
+    color: blue;
+}
 ```
 
 ```css
 .namespace .foo {
   /* Output example */
+}
+.g-bar {
+    color: red;
+}
+.global {
+    color: blue;
 }
 ```
 
